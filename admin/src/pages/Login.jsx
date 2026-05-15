@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Mail, Lock, Loader2 } from 'lucide-react';
+import { API_BASE } from '../api/config';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ const Login = () => {
     setError('');
     try {
       // 1. Authenticate with Node.js Backend API
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -35,7 +36,7 @@ const Login = () => {
     } catch (err) {
       console.error('Detailed Login Error:', err);
       if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
-        setError('Cannot reach the backend server (localhost:5000). Please ensure your Node.js server is running (npm run dev in backend folder).');
+        setError('Cannot reach the backend server. Please check your internet connection or if the server is down.');
       } else {
         setError(err.message || 'An unexpected error occurred');
       }
