@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduAttend - Employee Portal</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .mobile-frame {
+            width: 375px;
+            height: 750px;
+            background: var(--card-bg);
+            border-radius: 40px;
+            border: 12px solid #1a1a1a;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-bar {
+            height: 40px;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .logo-container {
+            width: 70px;
+            height: 70px;
+            background: var(--primary);
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+        }
+
+        .logo-icon {
+            color: white;
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 800;
+            text-align: center;
+            margin: 0;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin: 10px 0 40px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #334155;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+
+        .login-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 30px;
+        }
+
+        .footer-text a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Dashboard State */
+        .dashboard {
+            display: none;
+            padding: 20px;
+        }
+
+        .header-row {
+            margin-bottom: 30px;
+        }
+
+        .welcome-text {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .attendance-card {
+            background: var(--primary);
+            border-radius: 24px;
+            padding: 30px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.3);
+        }
+
+        .mark-btn {
+            background: white;
+            color: var(--primary);
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            font-weight: 700;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-frame">
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>📶 🔋</span>
+        </div>
+
+        <div id="login-view" class="content">
+            <div class="logo-container">
+                <span class="logo-icon">E</span>
+            </div>
+            <h1>EduAttend</h1>
+            <p class="subtitle">Employee Portal Login</p>
+
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="jane@edtech.com" value="jane@edtech.com">
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••" value="password123">
+            </div>
+
+            <button class="login-btn" onclick="handleLogin()">Sign In</button>
+
+            <p class="footer-text">Trouble logging in? <a href="#">Contact Support</a></p>
+        </div>
+
+        <div id="dashboard-view" class="dashboard">
+            <div class="header-row">
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 5px;">Welcome back,</p>
+                <div class="welcome-text">Jane Smith</div>
+            </div>
+
+            <div class="attendance-card">
+                <div style="font-size: 14px; opacity: 0.8; letter-spacing: 1px; font-weight: 600;">DAILY ATTENDANCE</div>
+                <div style="font-size: 28px; font-weight: 800; margin: 15px 0;">Ready to Check-in?</div>
+                <p style="font-size: 13px; opacity: 0.7;">Your GPS and Face verification are active for today's log.</p>
+                <button class="mark-btn" onclick="alert('Attendance Marked Successfully!')">Mark Attendance</button>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 15px;">Today's Summary</h3>
+                <div style="background: #f1f5f9; padding: 15px; border-radius: 16px; display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Status</span>
+                    <span style="font-weight: 700; color: #f59e0b;">Pending</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleLogin() {
+            const email = document.getElementById('email').value;
+            if (email === 'jane@edtech.com') {
+                document.getElementById('login-view').style.display = 'none';
+                document.getElementById('dashboard-view').style.display = 'block';
+            } else {
+                alert('Invalid credentials');
+            }
+        }
+    </script>
+</body>
+</html>

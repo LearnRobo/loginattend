@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduAttend Admin Suite | Enterprise</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --secondary: #0f172a;
+            --bg: #f8fafc;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 16px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text-main); overflow: hidden; }
+
+        .layout { display: flex; height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 2.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+        }
+
+        .logo-section { display: flex; align-items: center; gap: 1rem; margin-bottom: 4rem; padding-left: 0.5rem; }
+        .logo-box { 
+            width: 44px; height: 44px; background: var(--primary); color: white; 
+            display: flex; justify-content: center; align-items: center; 
+            border-radius: 12px; font-weight: 800; font-size: 24px; 
+            box-shadow: 0 8px 16px rgba(2, 132, 199, 0.2);
+        }
+        .brand-name { font-weight: 800; font-size: 1.4rem; line-height: 1; color: var(--secondary); letter-spacing: -0.02em; }
+        .brand-sub { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-top: 4px; }
+
+        .nav-group { margin-bottom: 2.5rem; }
+        .nav-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; padding-left: 1rem; }
+
+        .nav-item {
+            display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem;
+            border-radius: 14px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-muted); font-weight: 600; text-decoration: none; margin-bottom: 0.5rem;
+            border: 1px solid transparent;
+        }
+        .nav-item i { font-size: 20px; }
+        .nav-item.active { 
+            background: #f0f9ff; 
+            color: var(--primary); 
+            border-color: #e0f2fe;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.05);
+        }
+        .nav-item:hover:not(.active) { background: #f8fafc; color: var(--secondary); transform: translateX(4px); }
+
+        /* Main Content */
+        .main { flex: 1; padding: 3rem; overflow-y: auto; position: relative; }
+
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3.5rem; }
+        .welcome-title { font-size: 2.25rem; font-weight: 800; letter-spacing: -0.03em; color: var(--secondary); }
+        .welcome-sub { color: var(--text-muted); font-size: 16px; margin-top: 4px; }
+
+        /* Dashboard Cards */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.75rem; margin-bottom: 3.5rem; }
+        .stat-card {
+            background: white; padding: 2rem; border-radius: 20px; border: 1px solid var(--border);
+            display: flex; flex-direction: column; gap: 1rem; transition: 0.3s;
+            box-shadow: var(--shadow);
+        }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        .stat-icon-row { display: flex; justify-content: space-between; align-items: center; }
+        .stat-icon-bg { width: 52px; height: 52px; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 24px; }
+        .trend-pill { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; border: 1px solid transparent; }
+
+        /* Tables & Lists */
+        .card { background: white; border-radius: 20px; border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+        .card-header { padding: 1.75rem 2rem; border-bottom: 1px solid var(--border); background: #fcfcfd; display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-size: 1.25rem; font-weight: 800; color: var(--secondary); letter-spacing: -0.01em; }
+
+        .table { width: 100%; border-collapse: collapse; }
+        .table th { text-align: left; padding: 1.25rem 2rem; font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border); background: #f8fafc; }
+        .table td { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); font-size: 15px; vertical-align: middle; }
+        .table tr:last-child td { border-bottom: none; }
+        .table tr:hover { background: #fbfcfe; }
+
+        /* Status Badges */
+        .badge { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid transparent; }
+        .badge-success { background: #ecfdf5; color: #059669; border-color: #d1fae5; }
+        .badge-warning { background: #fffbeb; color: #d97706; border-color: #fef3c7; }
+        .badge-danger { background: #fef2f2; color: #dc2626; border-color: #fee2e2; }
+        .badge-info { background: #f0f9ff; color: #0284c7; border-color: #e0f2fe; }
+
+        /* Forms & Buttons */
+        .btn-primary { 
+            background: var(--primary); color: white; padding: 1rem 1.75rem; border-radius: 14px; border: none;
+            font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+            font-size: 15px;
+        }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(2, 132, 199, 0.3); }
+
+        .input-field {
+            width: 100%; padding: 1rem 1.25rem; border-radius: 12px; border: 1px solid var(--border);
+            background: #f8fafc; font-family: inherit; font-size: 15px; outline: none; transition: 0.2s;
+        }
+        .input-field:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.1); }
+
+        /* Login Screen */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #f8fafc; display: flex; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .login-panel {
+            width: 460px; background: white; padding: 4rem; border-radius: 32px; border: 1px solid var(--border);
+            text-align: center; box-shadow: var(--shadow-lg);
+        }
+
+        .screen { display: none; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .avatar { width: 40px; height: 40px; border-radius: 12px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--primary); font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div id="login-overlay">
+        <div class="login-panel">
+            <div class="logo-box" style="margin: 0 auto 2rem;">E</div>
+            <h2 style="font-size: 2rem; font-weight: 800; color: var(--secondary); letter-spacing: -0.03em;">Admin Suite</h2>
+            <p style="color: var(--text-muted); margin-bottom: 3rem; font-weight: 500;">Enterprise Management Portal Access</p>
+            <input type="email" id="email" class="input-field" placeholder="Corporate Email" value="admin@edtech.com" style="margin-bottom: 1.25rem;">
+            <input type="password" id="password" class="input-field" placeholder="Security Password" value="admin123" style="margin-bottom: 2.5rem;">
+            <button class="btn-primary" style="width: 100%;" onclick="login()">Authorize Access</button>
+            <p id="error" style="color: #ef4444; font-size: 13px; margin-top: 1.5rem; font-weight: 600;"></p>
+            <div style="margin-top: 1rem;">
+                <button id="mock-toggle" onclick="toggleMockMode()" style="background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600;">Try Demo Mode</button>
+            </div>
+            <div style="margin-top: 2rem; font-size: 12px; color: var(--text-muted); font-weight: 500;">Secure 256-bit Encrypted Session</div>
+        </div>
+    </div>
+
+    <div class="layout" id="main-layout" style="display: none;">
+        <div class="sidebar">
+            <div class="logo-section">
+                <div class="logo-box">E</div>
+                <div>
+                    <div class="brand-name">EduAttend</div>
+                    <div class="brand-sub">Admin Console</div>
+                </div>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Core Operations</div>
+                <div class="nav-item active" onclick="showScreen('dash')">📊 Dashboard</div>
+                <div class="nav-item" onclick="showScreen('employees')">👥 Employees</div>
+                <div class="nav-item" onclick="showScreen('attendance')">🗓️ Attendance</div>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-label">Management</div>
+                <div class="nav-item" onclick="showScreen('leaves')">✉️ Leave Requests</div>
+                <div class="nav-item" onclick="showScreen('payroll')">💰 Payroll Engine</div>
+            </div>
+            
+            <div class="nav-item" style="margin-top: auto; color: #ef4444;" onclick="location.reload()">🚪 Sign Out</div>
+        </div>
+
+        <div class="main">
+            <!-- Dashboard Screen -->
+            <div id="dash-screen" class="screen" style="display: block;">
+                <div class="header">
+                    <div>
+                        <h1 class="welcome-title">Enterprise Overview</h1>
+                        <p class="welcome-sub">Real-time insights across all departments.</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 800; color: var(--secondary);">Super Admin</div>
+                        <div style="font-size: 12px; color: var(--text-muted); font-weight: 700;">ROOT ACCESS • ACTIVE</div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon-row">
+                            <div class="stat-icon-bg" style="background: #f0f9ff; color: #0284c7;">👥</div>
+                            <div class="trend-pill badge-success">+4.2%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Total Staff</div>
+                            <div style="font-size: 32px; font-weight: 800; color: var(--secondary); margin-top: 4px;">124</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-row">
+                            <div class="stat-icon-bg" style="background: #ecfdf5; color: #059669;">✅</div>
+                            <div class="trend-pill badge-success">95%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Present Today</div>
+                            <div style="font-size: 32px; font-weight: 800; color: var(--secondary); margin-top: 4px;">118</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-row">
+                            <div class="stat-icon-bg" style="background: #fef2f2; color: #dc2626;">🕒</div>
+                            <div class="trend-pill badge-danger">High</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Late Arrivals</div>
+                            <div style="font-size: 32px; font-weight: 800; color: var(--secondary); margin-top: 4px;">08</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-row">
+                            <div class="stat-icon-bg" style="background: #fffbeb; color: #d97706;">✉️</div>
+                            <div class="trend-pill badge-warning">12 New</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Pending Leaves</div>
+                            <div style="font-size: 32px; font-weight: 800; color: var(--secondary); margin-top: 4px;">14</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Attendance Trends</h3>
+                            <div class="badge badge-info">This Week</div>
+                        </div>
+                        <div style="padding: 2.5rem; height: 300px; display: flex; align-items: flex-end; justify-content: space-around; gap: 1rem;">
+                            <div style="flex: 1; height: 60%; background: #e0f2fe; border-radius: 8px; position: relative;"><div style="position: absolute; top: -25px; width: 100%; text-align: center; font-size: 11px; font-weight: 800; color: var(--text-muted);">MON</div></div>
+                            <div style="flex: 1; height: 85%; background: #bae6fd; border-radius: 8px; position: relative;"><div style="position: absolute; top: -25px; width: 100%; text-align: center; font-size: 11px; font-weight: 800; color: var(--text-muted);">TUE</div></div>
+                            <div style="flex: 1; height: 75%; background: #7dd3fc; border-radius: 8px; position: relative;"><div style="position: absolute; top: -25px; width: 100%; text-align: center; font-size: 11px; font-weight: 800; color: var(--text-muted);">WED</div></div>
+                            <div style="flex: 1; height: 90%; background: var(--primary); border-radius: 8px; position: relative;"><div style="position: absolute; top: -25px; width: 100%; text-align: center; font-size: 11px; font-weight: 800; color: var(--secondary);">THU</div></div>
+                            <div style="flex: 1; height: 80%; background: #7dd3fc; border-radius: 8px; position: relative;"><div style="position: absolute; top: -25px; width: 100%; text-align: center; font-size: 11px; font-weight: 800; color: var(--text-muted);">FRI</div></div>
+                            <div style="flex: 1; height: 40%; background: #f1f5f9; border-radius: 8px; position: relative;"><div style="position: absolute; top: -25px; width: 100%; text-align: center; font-size: 11px; font-weight: 800; color: var(--text-muted);">SAT</div></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">Quick Actions</h3></div>
+                        <div style="padding: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+                            <button class="btn-primary" style="padding: 1.25rem;">Generate Monthly Report</button>
+                            <button class="btn-primary" style="background: white; border: 1px solid var(--border); color: var(--secondary); box-shadow: none; padding: 1.25rem;">Bulk Staff Invite</button>
+                            <button class="btn-primary" style="background: #f8fafc; border: 1px solid var(--border); color: var(--text-muted); box-shadow: none; padding: 1.25rem;">System Settings</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employees Screen -->
+            <div id="employees-screen" class="screen">
+                <div class="header">
+                    <div>
+                        <h1 class="welcome-title">Staff Directory</h1>
+                        <p class="welcome-sub">Manage academic and administrative employee records.</p>
+                    </div>
+                    <button class="btn-primary">+ Add New Staff</button>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <input type="text" class="input-field" placeholder="Search by name, ID or department..." style="max-width: 400px; padding: 0.75rem 1.25rem;">
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="badge badge-info" style="cursor: pointer;">Filter</button>
+                            <button class="badge badge-info" style="cursor: pointer;">Export</button>
+                        </div>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Staff ID</th>
+                                <th>Department</th>
+                                <th>Salary (Monthly)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employee-list"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Attendance Screen -->
+            <div id="attendance-screen" class="screen">
+                <div class="header">
+                    <div>
+                        <h1 class="welcome-title">Daily Attendance</h1>
+                        <p class="welcome-sub">Live monitoring of punch-in and punch-out events.</p>
+                    </div>
+                    <button class="btn-primary" style="background: white; border: 1px solid var(--border); color: var(--secondary); box-shadow: none;">Download CSV</button>
+                </div>
+                <div class="card">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Employee</th>
+                                <th>Punch In</th>
+                                <th>Punch Out</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-list"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Leave Requests Screen -->
+            <div id="leaves-screen" class="screen">
+                <div class="header">
+                    <div>
+                        <h1 class="welcome-title">Leave Management</h1>
+                        <p class="welcome-sub">Process and approve staff time-off requests.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Leave Type</th>
+                                <th>Duration</th>
+                                <th>Reason</th>
+                                <th>Decision</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leave-list">
+                            <!-- Populated via API -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Payroll Screen -->
+            <div id="payroll-screen" class="screen">
+                <div class="header">
+                    <div>
+                        <h1 class="welcome-title">Payroll Engine</h1>
+                        <p class="welcome-sub">Salary disbursement and tax calculation system.</p>
+                    </div>
+                    <button class="btn-primary">Run Payroll Batch</button>
+                </div>
+                <div class="card" style="padding: 4rem; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 1.5rem;">💰</div>
+                    <h3 style="font-size: 24px; font-weight: 800; margin-bottom: 1rem;">Payroll Module Active</h3>
+                    <p style="color: var(--text-muted); max-width: 400px; margin: 0 auto 2.5rem;">The payroll engine is synchronized with the latest attendance data. You can now generate slips for the current cycle.</p>
+                    <button class="btn-primary">Generate All Pay-slips</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let token = '';
+        let mockMode = false;
+
+        const mockData = {
+            employees: [
+                { _id: '1', name: 'Rahul Sharma', email: 'rahul@edtech.com', employeeId: 'EMP001', role: 'Teacher', salaryDetails: { baseSalary: 35000 } },
+                { _id: '2', name: 'Priya Patel', email: 'priya@edtech.com', employeeId: 'EMP002', role: 'Admin', salaryDetails: { baseSalary: 40000 } },
+                { _id: '3', name: 'Ashwini Rajput', email: 'ashwini@edtech.com', employeeId: 'EMP003', role: 'Manager', salaryDetails: { baseSalary: 45000 } }
+            ],
+            attendance: [
+                { _id: 'a1', user: { name: 'Rahul Sharma', employeeId: 'EMP001' }, date: '2026-05-14', status: 'present', checkIn: { time: new Date().toISOString() }, checkOut: { time: new Date().toISOString() } },
+                { _id: 'a2', user: { name: 'Priya Patel', employeeId: 'EMP002' }, date: '2026-05-14', status: 'present', checkIn: { time: new Date().toISOString() } }
+            ],
+            leaves: [
+                { _id: 'l1', user: { name: 'Ashwini Rajput', employeeId: 'EMP003' }, type: 'Sick Leave', startDate: '2026-05-15', endDate: '2026-05-16', reason: 'Seasonal Fever', status: 'pending' }
+            ]
+        };
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id + '-screen').style.display = 'block';
+            
+            // Highlight nav item
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                if (item.innerText.toLowerCase().includes(id)) item.classList.add('active');
+            });
+
+            if (id === 'employees') fetchEmployees();
+            if (id === 'attendance') fetchAttendance();
+            if (id === 'leaves') fetchLeaves();
+        }
+
+        function toggleMockMode() {
+            mockMode = !mockMode;
+            const btn = document.getElementById('mock-toggle');
+            btn.innerText = mockMode ? 'Mock Mode: ON' : 'Mock Mode: OFF';
+            btn.style.background = mockMode ? '#059669' : '#64748b';
+            if (mockMode) {
+                token = 'mock-token';
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('main-layout').style.display = 'flex';
+                showScreen('dash');
+            } else {
+                location.reload();
+            }
+        }
+
+        async function login() {
+            if (mockMode) {
+                token = 'mock-token';
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('main-layout').style.display = 'flex';
+                return;
+            }
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            try {
+                const res = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (data.token && data.user.role === 'admin') {
+                    token = data.token;
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('main-layout').style.display = 'flex';
+                } else {
+                    document.getElementById('error').innerText = 'Authorization Failed: Admin Credentials Required.';
+                }
+            } catch (e) {
+                document.getElementById('error').innerHTML = `
+                    Connection Error: Backend inactive on port 5000.<br>
+                    <button onclick="toggleMockMode()" style="margin-top: 1rem; background: var(--secondary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;">Try Mock Mode</button>
+                `;
+            }
+        }
+
+        async function fetchEmployees() {
+            let emps = [];
+            if (mockMode) {
+                emps = mockData.employees;
+            } else {
+                try {
+                    const res = await fetch('http://localhost:5000/api/employees', {
+                        headers: { 'x-auth-token': token }
+                    });
+                    emps = await res.json();
+                } catch (e) {
+                    console.error("Fetch failed, using mock data", e);
+                    emps = mockData.employees;
+                }
+            }
+            const list = document.getElementById('employee-list');
+            list.innerHTML = emps.map(emp => `
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div class="avatar">${emp.name.charAt(0)}</div>
+                            <div>
+                                <div style="font-weight: 700; color: var(--secondary);">${emp.name}</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">${emp.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-info">${emp.employeeId}</span></td>
+                    <td><div style="font-weight: 600; text-transform: capitalize;">${emp.role}</div></td>
+                    <td><div style="font-weight: 800; color: #059669;">₹${emp.salaryDetails?.baseSalary?.toLocaleString() || '0'}</div></td>
+                    <td>
+                        <button style="background: none; border: none; color: var(--primary); font-weight: 800; cursor: pointer; font-size: 13px;">Manage</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function fetchAttendance() {
+            let logs = [];
+            if (mockMode) {
+                logs = mockData.attendance;
+            } else {
+                try {
+                    const res = await fetch('http://localhost:5000/api/attendance/all', {
+                        headers: { 'x-auth-token': token }
+                    });
+                    logs = await res.json();
+                } catch (e) {
+                    logs = mockData.attendance;
+                }
+            }
+            const list = document.getElementById('attendance-list');
+            list.innerHTML = logs.map(log => `
+                <tr>
+                    <td><div style="font-weight: 700;">${log.date}</div></td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div class="avatar">${log.user?.name?.charAt(0) || '?'}</div>
+                            <div>
+                                <div style="font-weight: 700; color: var(--secondary);">${log.user?.name || 'N/A'}</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">${log.user?.employeeId || ''}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><div style="font-weight: 700;">${log.checkIn?.time ? new Date(log.checkIn.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--'}</div></td>
+                    <td><div style="font-weight: 700;">${log.checkOut?.time ? new Date(log.checkOut.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--'}</div></td>
+                    <td><span class="badge ${log.status === 'present' ? 'badge-success' : 'badge-warning'}">${log.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        async function fetchLeaves() {
+            let leaves = [];
+            if (mockMode) {
+                leaves = mockData.leaves;
+            } else {
+                try {
+                    const res = await fetch('http://localhost:5000/api/leaves/all', {
+                        headers: { 'x-auth-token': token }
+                    });
+                    leaves = await res.json();
+                } catch (e) {
+                    leaves = mockData.leaves;
+                }
+            }
+            const list = document.getElementById('leave-list');
+            list.innerHTML = leaves.map(leave => `
+                <tr>
+                    <td>
+                        <div style="font-weight: 700;">${leave.user?.name}</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">${leave.user?.employeeId}</div>
+                    </td>
+                    <td><span class="badge badge-info">${leave.type}</span></td>
+                    <td>
+                        <div style="font-weight: 700;">${new Date(leave.startDate).toLocaleDateString()}</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">to ${new Date(leave.endDate).toLocaleDateString()}</div>
+                    </td>
+                    <td><div style="font-size: 13px; color: var(--text-muted); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${leave.reason}</div></td>
+                    <td>
+                        ${leave.status === 'pending' ? `
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="badge badge-success" style="cursor: pointer;">Approve</button>
+                                <button class="badge badge-danger" style="cursor: pointer;">Reject</button>
+                            </div>
+                        ` : `
+                            <span class="badge ${leave.status === 'approved' ? 'badge-success' : 'badge-danger'}">${leave.status}</span>
+                        `}
+                    </td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+flask
+flask-cors
+opencv-python
+numpy
+# face-recognition  # Note: Requires dlib, might be tricky on some systems
+deepface

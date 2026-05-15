@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduAttend - Professional Employee Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --primary-light: #818cf8;
+            --bg: #0f172a;
+            --surface: rgba(255, 255, 255, 0.95);
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+
+        .mobile-frame {
+            width: 380px;
+            height: 800px;
+            background: #f8fafc;
+            border-radius: 50px;
+            border: 14px solid #1a1a1a;
+            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            color: var(--text);
+        }
+
+        .status-bar {
+            height: 44px;
+            padding: 0 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* Login Screen Styles */
+        #login-view {
+            justify-content: center;
+            height: 100%;
+        }
+
+        .logo-box {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 20px;
+            margin: 0 auto 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.4);
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 800;
+            text-align: center;
+            margin: 0;
+            letter-spacing: -1px;
+            color: #0f172a;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin: 8px 0 40px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            background: #f1f5f9;
+            border-radius: 16px;
+            border: 1.5px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        input {
+            width: 100%;
+            padding: 16px;
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            font-family: inherit;
+            color: var(--text);
+            box-sizing: border-box;
+        }
+
+        input:focus { outline: none; }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 18px;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(79, 70, 229, 0.5);
+        }
+
+        /* Dashboard Styles */
+        .dash-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            background: var(--primary);
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: 800;
+        }
+
+        .clock-card {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            border-radius: 28px;
+            padding: 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.4);
+            margin-bottom: 24px;
+        }
+
+        .clock-time {
+            font-size: 38px;
+            font-weight: 800;
+            margin: 8px 0;
+            letter-spacing: -1px;
+        }
+
+        .status-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 16px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .grid-item {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            border: 1.5px solid #f1f5f9;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .grid-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-light);
+        }
+
+        .icon-bg {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .recent-logs {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            border: 1.5px solid #f1f5f9;
+        }
+
+        .log-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .log-row:last-child { border-bottom: none; }
+
+        .log-info h4 { margin: 0; font-size: 14px; font-weight: 700; }
+        .log-info span { font-size: 12px; color: var(--text-muted); }
+
+        .status-tag {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 8px;
+            background: #dcfce7;
+            color: #166534;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-frame">
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>📶 🔋</span>
+        </div>
+
+        <div id="login-view" class="content-area">
+            <div class="logo-box">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+            </div>
+            <h1>EduAttend</h1>
+            <p class="subtitle">Secure Employee Access Portal</p>
+
+            <div class="input-group">
+                <label>Email Address</label>
+                <div class="input-wrapper">
+                    <input type="email" id="email" placeholder="jane@company.com" value="jane@edtech.com">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" placeholder="••••••••" value="password123">
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="handleLogin()">Sign In</button>
+            <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 24px;">
+                Trouble logging in? <a href="#" style="color: var(--primary); text-decoration: none; font-weight: 700;">Support</a>
+            </p>
+        </div>
+
+        <div id="dashboard-view" class="content-area" style="display: none;">
+            <div class="dash-header">
+                <div class="user-info">
+                    <div class="avatar" id="avatar-init">J</div>
+                    <div>
+                        <p style="margin: 0; font-size: 11px; color: var(--text-muted); font-weight: 600;">Welcome back,</p>
+                        <p style="margin: 0; font-size: 16px; font-weight: 700;" id="emp-name">Jane Smith</p>
+                    </div>
+                </div>
+                <div style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 12px; display: flex; justify-content: center; align-items: center;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                </div>
+            </div>
+
+            <div class="clock-card">
+                <div style="font-size: 10px; font-weight: 800; opacity: 0.7; letter-spacing: 1px;">OFFICIAL SYSTEM TIME</div>
+                <div class="clock-time" id="live-clock">09:41:00</div>
+                <div style="font-size: 13px; font-weight: 500; opacity: 0.9;">Friday, May 15, 2026</div>
+                <div class="status-badge">
+                    <div class="dot" id="status-dot"></div>
+                    <span id="attendance-status">READY TO START</span>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="grid-item" onclick="markAttendance()">
+                    <div class="icon-bg" style="background: #eef2ff;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                    <span class="label" id="action-label">Punch In</span>
+                </div>
+                <div class="grid-item">
+                    <div class="icon-bg" style="background: #ecfdf5;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    </div>
+                    <span class="label">My Slips</span>
+                </div>
+            </div>
+
+            <h3 style="font-size: 14px; font-weight: 800; margin-bottom: 12px; color: #475569;">RECENT ACTIVITY</h3>
+            <div class="recent-logs">
+                <div class="log-row">
+                    <div class="log-info">
+                        <h4>Today</h4>
+                        <span>Shift A • Verified</span>
+                    </div>
+                    <div class="status-tag">Present</div>
+                </div>
+                <div class="log-row">
+                    <div class="log-info">
+                        <h4>May 14</h4>
+                        <span>Shift A • Verified</span>
+                    </div>
+                    <div class="status-tag">Present</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let token = '';
+        let userData = null;
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-clock').innerText = now.toLocaleTimeString([], { hour12: false });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        async function handleLogin() {
+            const btn = document.querySelector('.btn-primary');
+            btn.innerText = 'Verifying...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    token = data.token;
+                    userData = data.user;
+                    document.getElementById('login-view').style.display = 'none';
+                    document.getElementById('dashboard-view').style.display = 'block';
+                    document.getElementById('emp-name').innerText = userData.name;
+                    document.getElementById('avatar-init').innerText = userData.name[0];
+                } else {
+                    alert(data.msg || 'Login Failed');
+                }
+            } catch (err) {
+                alert('Connection Error. Backend must be running on port 5000.');
+            } finally {
+                btn.innerText = 'Sign In';
+                btn.disabled = false;
+            }
+        }
+
+        async function markAttendance() {
+            const statusEl = document.getElementById('attendance-status');
+            const dotEl = document.getElementById('status-dot');
+            const labelEl = document.getElementById('action-label');
+            
+            const isPunchIn = labelEl.innerText === 'Punch In';
+            const endpoint = isPunchIn ? 'check-in' : 'check-out';
+            
+            try {
+                const res = await fetch(`/api/attendance/${endpoint}`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-auth-token': token 
+                    },
+                    body: JSON.stringify({ lat: 12.9716, lng: 77.5946 }) // Simulated office coords
+                });
+
+                if (res.ok) {
+                    if (isPunchIn) {
+                        statusEl.innerText = 'ACTIVE DUTY';
+                        dotEl.style.background = '#4ade80';
+                        labelEl.innerText = 'Punch Out';
+                    } else {
+                        statusEl.innerText = 'SHIFT ENDED';
+                        dotEl.style.background = '#f87171';
+                        labelEl.innerText = 'Duty Done';
+                    }
+                    alert('Success!');
+                } else {
+                    const data = await res.json();
+                    alert('Error: ' + data.msg);
+                }
+            } catch (e) {
+                alert('Request failed.');
+            }
+        }
+    </script>
+</body>
+</html>

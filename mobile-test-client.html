@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Apps Simulation</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        body { font-family: 'Inter', system-ui, sans-serif; background: #cbd5e1; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .phone { width: 360px; height: 740px; background: black; border-radius: 40px; padding: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+        .screen { backgrond: var(--bg); width: 100%; height: 100%; border-radius: 30px; overflow-y: auto; display: flex; flex-direction: column; position: relative; }
+        
+        /* Login Styles */
+        .login-header { height: 35%; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; border-bottom: 1px solid var(--border); }
+        .logo-box { width: 60px; height: 60px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 15px; display: flex; justify-content: center; align-items: center; color: var(--primary); font-size: 24px; font-weight: 800; margin-bottom: 15px; }
+        .brand { font-size: 22px; font-weight: 800; color: var(--text); }
+        .tagline { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+        
+        .login-form { padding: 25px; margin-top: -20px; }
+        .form-card { background: white; border-radius: 20px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .input-label { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: block; }
+        .input { width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; margin-bottom: 20px; box-sizing: border-box; font-size: 15px; outline: none; }
+        .input:focus { border-color: var(--primary); }
+        .btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
+
+        /* Dashboard Styles */
+        .top-bar { background: white; padding: 50px 20px 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .user-pill { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 35px; height: 35px; background: var(--primary); border-radius: 10px; display: flex; justify-content: center; align-items: center; color: white; font-weight: 700; }
+        
+        .dash-content { padding: 20px; }
+        .clock-card { background: white; border-radius: 20px; padding: 20px; text-align: center; border: 1px solid var(--border); margin-bottom: 20px; }
+        .clock-time { font-size: 32px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+        .clock-date { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+        .shift-pill { display: inline-flex; align-items: center; background: #f8fafc; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #475569; margin-top: 15px; border: 1px solid var(--border); }
+        .dot { width: 6px; height: 6px; border-radius: 50%; margin-right: 8px; }
+
+        .metrics { display: flex; gap: 10px; margin-bottom: 20px; }
+        .metric { flex: 1; background: white; padding: 12px; border-radius: 15px; border: 1px solid var(--border); }
+        .m-val { font-size: 14px; font-weight: 800; color: var(--text); }
+        .m-lbl { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+
+        .punch-btn { background: var(--primary); padding: 18px; border-radius: 15px; display: flex; align-items: center; gap: 15px; color: white; cursor: pointer; margin-bottom: 25px; transition: 0.2s; }
+        .p-icon { width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 20px; }
+        
+        .section-title { font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-left: 5px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
+        .grid-item { background: white; padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); cursor: pointer; }
+        .grid-icon { font-size: 18px; }
+        .grid-label { font-size: 12px; font-weight: 700; color: #334155; }
+
+        .log-table { background: white; border-radius: 15px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 30px; }
+        .log-row { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; }
+        .l-date { font-size: 13px; font-weight: 700; color: var(--text); }
+        .l-time { font-size: 11px; color: var(--text-muted); }
+        .l-status { background: #f0fdf4; color: #15803d; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+
+        #response, #attendance-response { font-size: 12px; text-align: center; margin-top: 10px; }
+        
+        /* Mock Screen Styles */
+        .mock-screen { display: none; padding: 25px; flex: 1; flex-direction: column; background: var(--bg); padding-top: 50px; }
+        .mock-header { display: flex; align-items: center; margin-bottom: 25px; }
+        .back-btn { font-size: 20px; cursor: pointer; margin-right: 15px; }
+        .mock-title { font-size: 18px; font-weight: 800; margin: 0; }
+        .mock-card { background: white; border-radius: 15px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <div id="login-screen" class="screen">
+            <div class="login-header">
+                <div class="logo-box">E</div>
+                <div class="brand">EduAttend Portal</div>
+                <div class="tagline">Enterprise Workforce Solutions</div>
+            </div>
+            <div class="login-form">
+                <div class="form-card">
+                    <span class="input-label">Corporate Email</span>
+                    <input type="email" id="email" class="input" placeholder="name@company.com" value="jane@edtech.com">
+                    <span class="input-label">Security Password</span>
+                    <input type="password" id="password" class="input" placeholder="••••••••" value="emp123">
+                    <button class="btn" onclick="login()">Authorize & Sign In</button>
+                    <div id="response"></div>
+                </div>
+                <p style="text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 40px;">© 2026 EduAttend Enterprise</p>
+            </div>
+        </div>
+
+        <div id="dashboard-screen" class="screen" style="display: none;">
+            <div class="top-bar">
+                <div class="user-pill">
+                    <div class="avatar">J</div>
+                    <div>
+                        <div style="font-weight: 800; font-size: 15px;">Jane Smith</div>
+                        <div style="font-size: 10px; color: var(--text-muted);">Senior Educator • EMP004</div>
+                    </div>
+                </div>
+                <div style="cursor: pointer;" onclick="location.reload()">🚪</div>
+            </div>
+            
+            <div class="dash-content">
+                <div class="clock-card">
+                    <div style="font-size: 9px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 5px;">SYSTEM CLOCK</div>
+                    <div class="clock-time" id="live-clock">09:15:00 AM</div>
+                    <div class="clock-date">Friday, May 8, 2026</div>
+                    <div class="shift-pill">
+                        <div class="dot" id="status-dot" style="background: #f59e0b;"></div>
+                        <span id="shift-label">Shift Status: NOT STARTED</span>
+                    </div>
+                </div>
+
+                <div class="metrics">
+                    <div class="metric">
+                        <div class="m-val">98.2%</div>
+                        <div class="m-lbl">Attend</div>
+                    </div>
+                    <div class="metric">
+                        <div class="m-val">12/24</div>
+                        <div class="m-lbl">Leaves</div>
+                    </div>
+                    <div class="metric">
+                        <div class="m-val" style="color: var(--primary);">09:15</div>
+                        <div class="m-lbl">Avg In</div>
+                    </div>
+                </div>
+
+                <div class="punch-btn" id="punch-btn" onclick="markAttendance()">
+                    <div class="p-icon">📍</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 800; font-size: 16px;" id="punch-title">Punch In</div>
+                        <div style="font-size: 11px; opacity: 0.8;">Location Verification Active</div>
+                    </div>
+                    <div>→</div>
+                </div>
+
+                <div class="section-title">Operations</div>
+                <div class="grid">
+                    <div class="grid-item" onclick="showMockScreen('leave')">
+                        <div class="grid-icon">📄</div>
+                        <span class="grid-label">Leave</span>
+                    </div>
+                    <div class="grid-item" onclick="showMockScreen('salary')">
+                        <div class="grid-icon">💰</div>
+                        <span class="grid-label">Salary</span>
+                    </div>
+                    <div class="grid-item" onclick="showMockScreen('history')">
+                        <div class="grid-icon">🕒</div>
+                        <span class="grid-label">History</span>
+                    </div>
+                    <div class="grid-item" onclick="showMockScreen('profile')">
+                        <div class="grid-icon">👤</div>
+                        <span class="grid-label">Profile</span>
+                    </div>
+                </div>
+
+                <div class="section-title">Recent Work Logs</div>
+                <div class="log-table">
+                    <div class="log-row">
+                        <div>
+                            <div class="l-date">Today</div>
+                            <div class="l-time l-time-today">09:15 AM - --:--</div>
+                        </div>
+                        <div class="l-status">Present</div>
+                    </div>
+                    <div class="log-row">
+                        <div>
+                            <div class="l-date">May 07</div>
+                            <div class="l-time">09:05 AM - 06:10 PM</div>
+                        </div>
+                        <div class="l-status">Present</div>
+                    </div>
+                </div>
+
+                <div id="attendance-response"></div>
+            </div>
+        </div>
+
+        <!-- Mock Screens -->
+        <div id="leave-screen" class="mock-screen">
+            <div class="mock-header">
+                <span class="back-btn" onclick="hideMockScreen()">←</span>
+                <h3 class="mock-title">Leave Request</h3>
+            </div>
+            <div class="mock-card">
+                <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">SELECT TYPE</label>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div class="leave-opt" onclick="selectLeaveType('SICK')" style="flex: 1; padding: 10px; background: var(--primary); color: white; border-radius: 10px; text-align: center; font-size: 11px; font-weight: 700; cursor: pointer;">SICK</div>
+                    <div class="leave-opt" onclick="selectLeaveType('CASUAL')" style="flex: 1; padding: 10px; background: #f1f5f9; border-radius: 10px; text-align: center; font-size: 11px; font-weight: 700; cursor: pointer;">CASUAL</div>
+                </div>
+                <input type="text" id="leave-reason" class="input" style="margin-top: 20px;" placeholder="Reason for leave...">
+                <button class="btn" onclick="submitLeave()">Submit Request</button>
+            </div>
+        </div>
+
+        <div id="salary-screen" class="mock-screen">
+            <div class="mock-header">
+                <span class="back-btn" onclick="hideMockScreen()">←</span>
+                <h3 class="mock-title">Salary Slips</h3>
+            </div>
+            <div class="mock-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 800;">May 2026</div>
+                        <div style="color: #10b981; font-size: 11px; font-weight: 700;">PAID</div>
+                    </div>
+                    <div style="font-size: 20px; font-weight: 800; color: var(--primary);">$4,200</div>
+                </div>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #f1f5f9; font-size: 13px; color: var(--text-muted);">
+                    Base: $4,000 | Bonus: $200
+                </div>
+            </div>
+        </div>
+
+        <div id="history-screen" class="mock-screen">
+            <div class="mock-header">
+                <span class="back-btn" onclick="hideMockScreen()">←</span>
+                <h3 class="mock-title">History</h3>
+            </div>
+            <div class="mock-card">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="font-weight: 700;">May 8, 2026</span>
+                    <span style="color: #10b981; font-weight: 800;">PRESENT</span>
+                </div>
+                <div class="l-time l-time-today" style="margin-top: 5px; font-size: 12px; color: var(--text-muted);">In: 09:15 AM | Out: --:--</div>
+            </div>
+            <div class="mock-card">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="font-weight: 700;">May 7, 2026</span>
+                    <span style="color: #10b981; font-weight: 800;">PRESENT</span>
+                </div>
+                <div style="margin-top: 5px; font-size: 12px; color: var(--text-muted);">In: 09:05 AM | Out: 06:10 PM</div>
+            </div>
+        </div>
+
+        <div id="profile-screen" class="mock-screen">
+            <div class="mock-header">
+                <span class="back-btn" onclick="hideMockScreen()">←</span>
+                <h3 class="mock-title">My Profile</h3>
+            </div>
+            <div style="text-align: center; margin-bottom: 25px;">
+                <div style="width: 80px; height: 80px; background: var(--primary); border-radius: 50%; margin: 0 auto 15px; display: flex; justify-content: center; align-items: center; color: white; font-size: 32px; font-weight: 800;">J</div>
+                <h3 style="margin: 0;">Jane Smith</h3>
+                <p style="color: var(--text-muted); margin: 5px 0;">Senior Educator</p>
+            </div>
+            <div class="mock-card">
+                <div style="font-size: 13px; color: var(--text-muted);">Employee ID</div>
+                <div style="font-weight: 700; margin-top: 3px;">EMP002</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let token = '';
+        let status = 'Off'; // Off, On, Done
+
+        function showMockScreen(id) {
+            document.getElementById('dashboard-screen').style.display = 'none';
+            document.getElementById(id + '-screen').style.display = 'flex';
+        }
+
+        function hideMockScreen() {
+            const screens = ['leave', 'salary', 'history', 'profile'];
+            screens.forEach(s => document.getElementById(s + '-screen').style.display = 'none');
+            document.getElementById('dashboard-screen').style.display = 'flex';
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.querySelector('.btn');
+            btn.innerText = 'Signing in...';
+            try {
+                const res = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (data.token) {
+                    token = data.token;
+                    
+                    // Fetch Current Status
+                    const historyRes = await fetch('http://localhost:5000/api/attendance/history', {
+                        headers: { 'x-auth-token': token }
+                    });
+                    const history = await historyRes.json();
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayLog = history.find(log => log.date === today);
+                    
+                    if (todayLog) {
+                        if (todayLog.checkOut && todayLog.checkOut.time) {
+                            status = 'Done';
+                            document.getElementById('shift-label').innerText = 'Shift Status: COMPLETED';
+                            document.getElementById('status-dot').style.background = '#ef4444';
+                            document.getElementById('punch-title').innerText = 'Duty Finished';
+                            document.getElementById('punch-btn').style.background = '#94a3b8';
+                        } else {
+                            status = 'On';
+                            document.getElementById('shift-label').innerText = 'Shift Status: ACTIVE';
+                            document.getElementById('status-dot').style.background = '#10b981';
+                            document.getElementById('punch-title').innerText = 'Punch Out';
+                        }
+                    }
+
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('dashboard-screen').style.display = 'flex';
+                } else {
+                    document.getElementById('response').innerText = 'Invalid credentials';
+                }
+            } catch (e) {
+                document.getElementById('response').innerText = 'Server unreachable. Check IP config.';
+            } finally {
+                btn.innerText = 'Sign In';
+            }
+        }
+
+        let leaveType = 'SICK';
+
+        function selectLeaveType(type) {
+            leaveType = type;
+            document.querySelectorAll('.leave-opt').forEach(opt => {
+                opt.style.background = '#f1f5f9';
+                opt.style.color = 'var(--text)';
+            });
+            event.currentTarget.style.background = 'var(--primary)';
+            event.currentTarget.style.color = 'white';
+        }
+
+        async function submitLeave() {
+            const reason = document.getElementById('leave-reason').value;
+            const btn = event.currentTarget;
+            btn.innerText = 'Submitting...';
+            try {
+                const res = await fetch('http://localhost:5000/api/leaves/apply', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-auth-token': token
+                    },
+                    body: JSON.stringify({ type: leaveType, reason, fromDate: new Date(), toDate: new Date() })
+                });
+                const data = await res.json();
+                if (data._id) {
+                    alert('Leave Request Submitted Successfully');
+                    hideMockScreen();
+                } else {
+                    alert('Error: ' + (data.msg || 'Submission failed'));
+                }
+            } catch (e) {
+                alert('Connection error');
+            } finally {
+                btn.innerText = 'Submit Request';
+            }
+        }
+
+        async function markAttendance() {
+            if (status === 'Done') return;
+
+            const punchBtn = document.getElementById('punch-btn');
+            const punchTitle = document.getElementById('punch-title');
+            const shiftLabel = document.getElementById('shift-label');
+            const statusDot = document.getElementById('status-dot');
+            const responseMsg = document.getElementById('attendance-response');
+
+            punchBtn.style.opacity = '0.7';
+            try {
+                const endpoint = status === 'On' ? '/check-out' : '/check-in';
+                const now = new Date();
+                const res = await fetch(`http://localhost:5000/api/attendance${endpoint}`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-auth-token': token
+                    },
+                    body: JSON.stringify({ 
+                        lat: 12.9716, 
+                        lng: 77.5946, 
+                        face: 'mock-base64-photo' 
+                    })
+                });
+                const data = await res.json();
+                
+                if (data._id) {
+                    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    if (status === 'On') {
+                        status = 'Done';
+                        shiftLabel.innerText = 'Shift Status: COMPLETED';
+                        statusDot.style.background = '#ef4444';
+                        punchTitle.innerText = 'Duty Finished';
+                        punchBtn.style.background = '#94a3b8';
+                        responseMsg.innerText = '✅ Check-out Authorized';
+                        responseMsg.style.color = '#15803d';
+                        
+                        // Update UI Logs
+                        document.querySelectorAll('.l-time-today').forEach(el => {
+                            el.innerText = el.innerText.split(' - ')[0] + ' - ' + timeStr;
+                        });
+                    } else {
+                        status = 'On';
+                        shiftLabel.innerText = 'Shift Status: ACTIVE';
+                        statusDot.style.background = '#10b981';
+                        punchTitle.innerText = 'Punch Out';
+                        responseMsg.innerText = '✅ Check-in Authorized';
+                        responseMsg.style.color = '#15803d';
+                        
+                        // Update UI Logs (initial check-in)
+                        document.querySelectorAll('.l-time-today').forEach(el => {
+                            el.innerText = timeStr + ' - --:--';
+                        });
+                    }
+                } else {
+                    responseMsg.innerText = '❌ ' + (data.msg || 'Authorization Denied');
+                    responseMsg.style.color = '#ef4444';
+                }
+            } catch (e) {
+                responseMsg.innerText = 'Network error: Verify server is active.';
+                responseMsg.style.color = '#ef4444';
+            } finally {
+                punchBtn.style.opacity = '1';
+            }
+        }
+    </script>
+</body>
+</html>
