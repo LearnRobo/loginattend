@@ -116,6 +116,34 @@ app.post('/api/attendance/check-in', (req, res) => {
   res.json(newLog);
 });
 
+app.post('/api/attendance/check-out', (req, res) => {
+  const { lat, lng, face } = req.body;
+
+  // Simple distance check
+  const R = 6371e3; // meters
+  const phi1 = lat * Math.PI / 180;
+  const phi2 = settings.officeLat * Math.PI / 180;
+  const deltaPhi = (settings.officeLat - lat) * Math.PI / 180;
+  const deltaLambda = (settings.officeLong - lng) * Math.PI / 180;
+  const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) + Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c;
+
+  if (distance > settings.allowedRadius) {
+    return res.status(400).json({ msg: `Outside allowed range (${Math.round(distance)}m away)` });
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+  const log = [...attendanceLogs].reverse().find(entry => entry.date === today && entry.checkIn && !entry.checkOut);
+
+  if (!log) {
+    return res.status(400).json({ msg: 'You must check-in first' });
+  }
+
+  log.checkOut = { time: new Date().toISOString() };
+  res.json(log);
+});
+
 app.get('/api/attendance/history', (req, res) => {
   res.json(attendanceLogs);
 });

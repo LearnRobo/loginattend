@@ -15,7 +15,7 @@
         }
         body { font-family: 'Inter', system-ui, sans-serif; background: #cbd5e1; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .phone { width: 360px; height: 740px; background: black; border-radius: 40px; padding: 12px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
-        .screen { backgrond: var(--bg); width: 100%; height: 100%; border-radius: 30px; overflow-y: auto; display: flex; flex-direction: column; position: relative; }
+        .screen { background: var(--bg); width: 100%; height: 100%; border-radius: 30px; overflow-y: auto; display: flex; flex-direction: column; position: relative; }
         
         /* Login Styles */
         .login-header { height: 35%; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; border-bottom: 1px solid var(--border); }
@@ -99,8 +99,8 @@
                 <div class="user-pill">
                     <div class="avatar">J</div>
                     <div>
-                        <div style="font-weight: 800; font-size: 15px;">Jane Smith</div>
-                        <div style="font-size: 10px; color: var(--text-muted);">Senior Educator • EMP004</div>
+                        <div style="font-weight: 800; font-size: 15px;" id="user-name">Jane Smith</div>
+                        <div style="font-size: 10px; color: var(--text-muted);" id="user-meta">Senior Educator - EMP002</div>
                     </div>
                 </div>
                 <div style="cursor: pointer;" onclick="location.reload()">🚪</div>
@@ -109,8 +109,8 @@
             <div class="dash-content">
                 <div class="clock-card">
                     <div style="font-size: 9px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 5px;">SYSTEM CLOCK</div>
-                    <div class="clock-time" id="live-clock">09:15:00 AM</div>
-                    <div class="clock-date">Friday, May 8, 2026</div>
+                    <div class="clock-time" id="live-clock">--:--:--</div>
+                    <div class="clock-date" id="live-date">Loading...</div>
                     <div class="shift-pill">
                         <div class="dot" id="status-dot" style="background: #f59e0b;"></div>
                         <span id="shift-label">Shift Status: NOT STARTED</span>
@@ -192,11 +192,11 @@
             <div class="mock-card">
                 <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">SELECT TYPE</label>
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <div class="leave-opt" onclick="selectLeaveType('SICK')" style="flex: 1; padding: 10px; background: var(--primary); color: white; border-radius: 10px; text-align: center; font-size: 11px; font-weight: 700; cursor: pointer;">SICK</div>
-                    <div class="leave-opt" onclick="selectLeaveType('CASUAL')" style="flex: 1; padding: 10px; background: #f1f5f9; border-radius: 10px; text-align: center; font-size: 11px; font-weight: 700; cursor: pointer;">CASUAL</div>
+                    <div class="leave-opt" onclick="selectLeaveType(event, 'SICK')" style="flex: 1; padding: 10px; background: var(--primary); color: white; border-radius: 10px; text-align: center; font-size: 11px; font-weight: 700; cursor: pointer;">SICK</div>
+                    <div class="leave-opt" onclick="selectLeaveType(event, 'CASUAL')" style="flex: 1; padding: 10px; background: #f1f5f9; border-radius: 10px; text-align: center; font-size: 11px; font-weight: 700; cursor: pointer;">CASUAL</div>
                 </div>
                 <input type="text" id="leave-reason" class="input" style="margin-top: 20px;" placeholder="Reason for leave...">
-                <button class="btn" onclick="submitLeave()">Submit Request</button>
+                <button class="btn" onclick="submitLeave(event)">Submit Request</button>
             </div>
         </div>
 
@@ -252,14 +252,34 @@
             </div>
             <div class="mock-card">
                 <div style="font-size: 13px; color: var(--text-muted);">Employee ID</div>
-                <div style="font-weight: 700; margin-top: 3px;">EMP002</div>
+                <div style="font-weight: 700; margin-top: 3px;" id="profile-employee-id">EMP002</div>
             </div>
         </div>
     </div>
 
     <script>
         let token = '';
+        let currentUser = null;
+        let currentOfficeId = '';
         let status = 'Off'; // Off, On, Done
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-clock').innerText = now.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('live-date').innerText = now.toLocaleDateString([], {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
 
         function showMockScreen(id) {
             document.getElementById('dashboard-screen').style.display = 'none';
@@ -286,6 +306,11 @@
                 const data = await res.json();
                 if (data.token) {
                     token = data.token;
+                    currentUser = data.user || {};
+                    currentOfficeId = currentUser.assignedOffices?.[0]?._id || '';
+                    document.getElementById('user-name').innerText = currentUser.name || 'Employee';
+                    document.getElementById('user-meta').innerText = `${currentUser.role || 'Employee'} - ${currentUser.employeeId || 'N/A'}`;
+                    document.getElementById('profile-employee-id').innerText = currentUser.employeeId || 'N/A';
                     
                     // Fetch Current Status
                     const historyRes = await fetch('http://localhost:5000/api/attendance/history', {
@@ -324,28 +349,29 @@
 
         let leaveType = 'SICK';
 
-        function selectLeaveType(type) {
+        function selectLeaveType(evt, type) {
             leaveType = type;
             document.querySelectorAll('.leave-opt').forEach(opt => {
                 opt.style.background = '#f1f5f9';
                 opt.style.color = 'var(--text)';
             });
-            event.currentTarget.style.background = 'var(--primary)';
-            event.currentTarget.style.color = 'white';
+            evt.currentTarget.style.background = 'var(--primary)';
+            evt.currentTarget.style.color = 'white';
         }
 
-        async function submitLeave() {
+        async function submitLeave(evt) {
             const reason = document.getElementById('leave-reason').value;
-            const btn = event.currentTarget;
+            const btn = evt.currentTarget;
             btn.innerText = 'Submitting...';
             try {
+                const today = new Date().toISOString().split('T')[0];
                 const res = await fetch('http://localhost:5000/api/leaves/apply', {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
                         'x-auth-token': token
                     },
-                    body: JSON.stringify({ type: leaveType, reason, fromDate: new Date(), toDate: new Date() })
+                    body: JSON.stringify({ type: leaveType, reason, startDate: today, endDate: today })
                 });
                 const data = await res.json();
                 if (data._id) {
@@ -374,17 +400,21 @@
             try {
                 const endpoint = status === 'On' ? '/check-out' : '/check-in';
                 const now = new Date();
+                const payload = {
+                    lat: 12.9716,
+                    lng: 77.5946,
+                    face: 'mock-base64-photo'
+                };
+                if (currentOfficeId) {
+                    payload.officeId = currentOfficeId;
+                }
                 const res = await fetch(`http://localhost:5000/api/attendance${endpoint}`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
                         'x-auth-token': token
                     },
-                    body: JSON.stringify({ 
-                        lat: 12.9716, 
-                        lng: 77.5946, 
-                        face: 'mock-base64-photo' 
-                    })
+                    body: JSON.stringify(payload)
                 });
                 const data = await res.json();
                 
