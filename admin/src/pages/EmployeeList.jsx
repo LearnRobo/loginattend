@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Search, Edit2, Trash2, User as UserIcon } from 'lucide-react';
+import { API_BASE } from '../api/config';
 
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     name: '', email: '', password: '', employeeId: '', baseSalary: ''
@@ -17,13 +19,16 @@ const EmployeeList = () => {
   const fetchEmployees = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://192.168.88.251:5000/api/employees', {
+      const res = await axios.get(`${API_BASE}/employees`, {
         headers: { 'x-auth-token': token }
       });
       setEmployees(res.data);
       setLoading(false);
+      setError(null);
     } catch (err) {
       console.error(err);
+      setLoading(false);
+      setError('Failed to fetch employee records. Please try again later.');
     }
   };
 
@@ -31,7 +36,7 @@ const EmployeeList = () => {
     if (window.confirm('Are you sure you want to delete this employee? This action cannot be undone.')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete('http://192.168.88.251:5000/api/employees/' + id, {
+        await axios.delete(`${API_BASE}/employees/${id}`, {
           headers: { 'x-auth-token': token }
         });
         fetchEmployees();
@@ -45,7 +50,7 @@ const EmployeeList = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://192.168.88.251:5000/api/employees', {
+      await axios.post(`${API_BASE}/employees`, {
         ...formData,
         salaryDetails: { baseSalary: formData.baseSalary }
       }, {
@@ -108,6 +113,8 @@ const EmployeeList = () => {
           <tbody>
             {loading ? (
               <tr><td colSpan="5" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>Fetching staff records...</td></tr>
+            ) : error ? (
+              <tr><td colSpan="5" style={{ textAlign: 'center', padding: '4rem', color: '#ef4444' }}>{error}</td></tr>
             ) : employees.length === 0 ? (
                 <tr><td colSpan="5" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>No employees found.</td></tr>
             ) : employees.map((emp) => (
