@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, UserPlus, FileBarChart, LogOut, ShieldCheck, Building2 } from 'lucide-react';
+import { LayoutDashboard, UserPlus, FileBarChart, LogOut, ShieldCheck, Building2, CalendarClock, CircleDollarSign } from 'lucide-react';
 
 const Sidebar = () => {
   const handleLogout = () => {
@@ -12,6 +12,8 @@ const Sidebar = () => {
   const navItems = [
     { to: '/', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
     { to: '/employees', icon: <UserPlus size={20} />, label: 'Employee Management' },
+    { to: '/leaves', icon: <CalendarClock size={20} />, label: 'Leave Requests' },
+    { to: '/payroll', icon: <CircleDollarSign size={20} />, label: 'Payroll' },
     { to: '/offices', icon: <Building2 size={20} />, label: 'Offices' },
     { to: '/reports', icon: <FileBarChart size={20} />, label: 'Reports' },
   ];

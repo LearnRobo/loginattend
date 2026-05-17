@@ -7,6 +7,8 @@ import EmployeeList from './pages/EmployeeList';
 import AttendanceReport from './pages/AttendanceReport';
 import OfficeManagement from './pages/OfficeManagement';
 import Login from './pages/Login';
+import LeaveManagement from './pages/LeaveManagement';
+import Payroll from './pages/Payroll';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -47,6 +49,8 @@ function App() {
               <Route path="/edit-employee/:id" element={<AddEmployee />} />
               <Route path="/offices" element={<OfficeManagement />} />
               <Route path="/reports" element={<AttendanceReport />} />
+              <Route path="/leaves" element={<LeaveManagement />} />
+              <Route path="/payroll" element={<Payroll />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </main>

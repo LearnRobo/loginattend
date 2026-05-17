@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Check, X, Clock, User } from 'lucide-react';
+import { API_BASE } from '../api/config';
 
 const LeaveManagement = () => {
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchLeaves();
@@ -13,20 +15,23 @@ const LeaveManagement = () => {
   const fetchLeaves = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/leaves/all', {
+      const res = await axios.get(`${API_BASE}/leaves/all`, {
         headers: { 'x-auth-token': token }
       });
       setLeaves(res.data);
       setLoading(false);
+      setError(null);
     } catch (err) {
       console.error(err);
+      setLoading(false);
+      setError('Failed to fetch leave requests.');
     }
   };
 
   const handleStatusUpdate = async (id, status) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/leaves/${id}`, { status }, {
+      await axios.put(`${API_BASE}/leaves/${id}`, { status }, {
         headers: { 'x-auth-token': token }
       });
       fetchLeaves();
@@ -57,6 +62,8 @@ const LeaveManagement = () => {
           <tbody>
             {loading ? (
               <tr><td colSpan="6" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>Retrieving pending requests...</td></tr>
+            ) : error ? (
+              <tr><td colSpan="6" style={{ textAlign: 'center', padding: '4rem', color: '#ef4444' }}>{error}</td></tr>
             ) : leaves.length === 0 ? (
                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>No leave requests found.</td></tr>
             ) : leaves.map((leave) => (

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { DollarSign, Download, Printer } from 'lucide-react';
+import { API_BASE } from '../api/config';
 
 const Payroll = () => {
   const [payroll, setPayroll] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchPayroll();
@@ -13,13 +15,16 @@ const Payroll = () => {
   const fetchPayroll = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/payroll', {
+      const res = await axios.get(`${API_BASE}/payroll`, {
         headers: { 'x-auth-token': token }
       });
       setPayroll(res.data);
       setLoading(false);
+      setError(null);
     } catch (err) {
       console.error(err);
+      setLoading(false);
+      setError('Failed to calculate payroll data.');
     }
   };
 
@@ -59,6 +64,8 @@ const Payroll = () => {
           <tbody>
             {loading ? (
               <tr><td colSpan="5" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>Calculating financial data...</td></tr>
+            ) : error ? (
+              <tr><td colSpan="5" style={{ textAlign: 'center', padding: '4rem', color: '#ef4444' }}>{error}</td></tr>
             ) : payroll.length === 0 ? (
                 <tr><td colSpan="5" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>No payroll data generated yet.</td></tr>
             ) : payroll.map((item) => (
