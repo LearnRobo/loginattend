@@ -132,9 +132,23 @@ exports.updateEmployee = async (req, res) => {
 
 exports.deleteEmployee = async (req, res) => {
   try {
-    await User.findByIdAndDelete(req.params.id);
-    res.json({ msg: 'Employee deleted' });
+    const employeeId = req.params.id;
+    console.log(`[DELETE] Request received to delete employee ID: ${employeeId}`);
+    
+    const deletedUser = await User.findByIdAndDelete(employeeId);
+    if (!deletedUser) {
+      console.log(`[DELETE] Employee ID: ${employeeId} not found.`);
+      return res.status(404).json({ msg: 'Employee not found' });
+    }
+
+    // Clean up associated attendance and leave records
+    await require('../models/Attendance').deleteMany({ user: employeeId });
+    await require('../models/Leave').deleteMany({ user: employeeId });
+
+    console.log(`[DELETE] Successfully deleted employee ${deletedUser.name} and associated records.`);
+    res.json({ msg: 'Employee deleted successfully', id: employeeId });
   } catch (err) {
-    res.status(500).send('Server Error');
+    console.error('[DELETE] Error deleting employee:', err);
+    res.status(500).json({ msg: 'Server Error during deletion', error: err.message });
   }
 };

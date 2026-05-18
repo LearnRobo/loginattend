@@ -82,9 +82,9 @@ const Payroll = () => {
                     </div>
                 </td>
                 <td style={{ padding: '1.25rem 2rem' }}>
-                    <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-main)' }}>{item.presentDays} / 24 Days</div>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-main)' }}>{item.presentDays} / {item.workingDaysInMonth || 24} Days</div>
                     <div style={{ width: '100px', height: '4px', background: '#f1f5f9', borderRadius: '2px', marginTop: '6px' }}>
-                        <div style={{ width: `${(item.presentDays/24)*100}%`, height: '100%', background: '#10b981', borderRadius: '2px' }}></div>
+                        <div style={{ width: `${Math.min(100, (item.presentDays / (item.workingDaysInMonth || 24)) * 100)}%`, height: '100%', background: '#10b981', borderRadius: '2px' }}></div>
                     </div>
                 </td>
                 <td style={{ padding: '1.25rem 2rem' }}>
