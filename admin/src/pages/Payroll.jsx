@@ -99,7 +99,11 @@ const Payroll = () => {
     doc.text(`Employee ID: ${emp.employeeId}`, 20, 56);
     const workingDays = emp.workingDaysInMonth || 24;
     doc.text(`Attendance Log: ${emp.presentDays} / ${workingDays} Working Days`, 120, 48);
-    if (emp.leaveDays > 0) {
+    if (emp.absentLeaveDays > 0) {
+      doc.setFontSize(10);
+      doc.setTextColor(220, 38, 38);
+      doc.text(`(${emp.absentLeaveDays} Days Deducted / Absent Leave)`, 120, 54);
+    } else if (emp.leaveDays > 0) {
       doc.setFontSize(10);
       doc.setTextColor(5, 150, 105);
       doc.text(`(${emp.attendanceCount} Punches + ${emp.leaveDays} Approved Paid Leaves)`, 120, 54);
@@ -219,7 +223,11 @@ const Payroll = () => {
                 </td>
                 <td style={{ padding: '1.25rem 2rem' }}>
                     <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--secondary)' }}>{item.presentDays} / {item.workingDaysInMonth || 24} Days</div>
-                    {item.leaveDays > 0 ? (
+                    {item.absentLeaveDays > 0 ? (
+                      <div style={{ fontSize: '11px', color: '#dc2626', fontWeight: '700', marginTop: '2px' }}>
+                        ({item.absentLeaveDays} Days Deducted / Absent Leave)
+                      </div>
+                    ) : item.leaveDays > 0 ? (
                       <div style={{ fontSize: '11px', color: '#059669', fontWeight: '700', marginTop: '2px' }}>
                         ({item.attendanceCount} Punches + {item.leaveDays} Paid Leaves)
                       </div>

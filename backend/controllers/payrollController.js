@@ -154,19 +154,23 @@ exports.getPayroll = async (req, res) => {
         date: { $regex: `^${monthString}` }
       });
 
-      // 2. Approved paid leave days for this month
+      // 2. Approved leave queries
       const approvedLeaves = await Leave.find({
         user: emp._id,
         status: 'approved'
       });
-      const leaveDays = countApprovedLeaveDaysInMonth(approvedLeaves, targetYear, targetMonth);
+      const paidQuotaLeaves = approvedLeaves.filter(l => ['sick', 'casual', 'earned'].includes(l.type));
+      const absentQuotaLeaves = approvedLeaves.filter(l => ['paid', 'unpaid'].includes(l.type));
+
+      const leaveDays = countApprovedLeaveDaysInMonth(paidQuotaLeaves, targetYear, targetMonth);
+      const absentLeaveDays = countApprovedLeaveDaysInMonth(absentQuotaLeaves, targetYear, targetMonth);
 
       let attendanceCount = actualPresent;
-      if (actualPresent === 0 && leaveDays === 0) {
+      if (actualPresent === 0 && leaveDays === 0 && absentLeaveDays === 0) {
         attendanceCount = Math.min(22, workingDaysInMonth);
       }
 
-      const presentDays = Math.min(workingDaysInMonth, attendanceCount + leaveDays);
+      const presentDays = Math.max(0, Math.min(workingDaysInMonth, attendanceCount + leaveDays) - absentLeaveDays);
 
       const baseSalary = emp.salaryDetails?.baseSalary || 35000;
       const bonus = emp.salaryDetails?.bonus || 0;
@@ -188,6 +192,7 @@ exports.getPayroll = async (req, res) => {
         presentDays,
         attendanceCount,
         leaveDays,
+        absentLeaveDays,
         workingDaysInMonth,
         salaryDetails: emp.salaryDetails,
         netSalary,
@@ -245,14 +250,18 @@ exports.getMyPayroll = async (req, res) => {
       user: emp._id,
       status: 'approved'
     });
-    const leaveDays = countApprovedLeaveDaysInMonth(approvedLeaves, targetYear, targetMonth);
+    const paidQuotaLeaves = approvedLeaves.filter(l => ['sick', 'casual', 'earned'].includes(l.type));
+    const absentQuotaLeaves = approvedLeaves.filter(l => ['paid', 'unpaid'].includes(l.type));
+
+    const leaveDays = countApprovedLeaveDaysInMonth(paidQuotaLeaves, targetYear, targetMonth);
+    const absentLeaveDays = countApprovedLeaveDaysInMonth(absentQuotaLeaves, targetYear, targetMonth);
 
     let attendanceCount = actualPresent;
-    if (actualPresent === 0 && leaveDays === 0) {
+    if (actualPresent === 0 && leaveDays === 0 && absentLeaveDays === 0) {
       attendanceCount = Math.min(22, workingDaysInMonth);
     }
 
-    const presentDays = Math.min(workingDaysInMonth, attendanceCount + leaveDays);
+    const presentDays = Math.max(0, Math.min(workingDaysInMonth, attendanceCount + leaveDays) - absentLeaveDays);
 
     const baseSalary = emp.salaryDetails?.baseSalary || 35000;
     const bonus = emp.salaryDetails?.bonus || 0;
@@ -274,6 +283,7 @@ exports.getMyPayroll = async (req, res) => {
       presentDays,
       attendanceCount,
       leaveDays,
+      absentLeaveDays,
       workingDaysInMonth,
       salaryDetails: emp.salaryDetails,
       netSalary,
