@@ -30,7 +30,11 @@ exports.addEmployee = async (req, res) => {
 
     let finalAssignedOffices = assignedOffices;
     if (typeof assignedOffices === 'string') {
-      finalAssignedOffices = [assignedOffices];
+      if (assignedOffices === '') {
+        finalAssignedOffices = [];
+      } else {
+        finalAssignedOffices = [assignedOffices];
+      }
     }
 
     user = new User({
@@ -81,7 +85,11 @@ exports.updateEmployee = async (req, res) => {
     if (assignedOffices !== undefined) {
       let finalOffices = assignedOffices;
       if (typeof assignedOffices === 'string') {
-        finalOffices = [assignedOffices];
+        if (assignedOffices === '') {
+          finalOffices = [];
+        } else {
+          finalOffices = [assignedOffices];
+        }
       }
       employee.assignedOffices = finalOffices || [];
     }

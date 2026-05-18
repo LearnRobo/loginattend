@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit2, Trash2, User as UserIcon } from 'lucide-react';
 import { API_BASE } from '../api/config';
 
 const EmployeeList = () => {
+  const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '', email: '', password: '', employeeId: '', baseSalary: ''
-  });
 
   useEffect(() => {
     fetchEmployees();
@@ -46,24 +44,6 @@ const EmployeeList = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE}/employees`, {
-        ...formData,
-        salaryDetails: { baseSalary: formData.baseSalary }
-      }, {
-        headers: { 'x-auth-token': token }
-      });
-      setShowModal(false);
-      fetchEmployees();
-      setFormData({ name: '', email: '', password: '', employeeId: '', baseSalary: '' });
-    } catch (err) {
-      alert('Error adding employee');
-    }
-  };
-
   return (
     <div className="fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
@@ -73,7 +53,7 @@ const EmployeeList = () => {
         </div>
         <button 
           className="btn-primary" 
-          onClick={() => window.location.href = '/add-employee'} 
+          onClick={() => navigate('/add-employee')} 
           style={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -142,7 +122,7 @@ const EmployeeList = () => {
                 <td style={{ padding: '1.25rem 2rem', textAlign: 'right' }}>
                   <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
                     <button 
-                      onClick={() => window.location.href = `/edit-employee/${emp._id}`}
+                      onClick={() => navigate(`/edit-employee/${emp._id}`)}
                       style={{ padding: '0.625rem', borderRadius: '10px', background: '#f8fafc', border: '1px solid var(--border)', color: 'var(--text-muted)', cursor: 'pointer' }}
                     >
                       <Edit2 size={16} />

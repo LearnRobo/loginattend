@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { UserPlus, Camera, Save, Loader2, ArrowLeft, DollarSign, MapPin, Building2, Check } from 'lucide-react';
 import axios from 'axios';
-import { API_BASE } from '../api/config';
+import { API_BASE, BASE_URL } from '../api/config';
 
 const AddEmployee = () => {
   const { id } = useParams();
   const isEdit = !!id;
+  const navigate = useNavigate();
+  const [existingPhoto, setExistingPhoto] = useState(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -61,6 +63,9 @@ const AddEmployee = () => {
       const data = await response.json();
       
       if (response.ok) {
+        if (data.faceImage) {
+          setExistingPhoto(data.faceImage);
+        }
         setFormData({
           name: data.name || '',
           empId: data.employeeId || '',
@@ -72,8 +77,10 @@ const AddEmployee = () => {
           baseSalary: data.salaryDetails?.baseSalary?.toString() || '',
           bonus: data.salaryDetails?.bonus?.toString() || '0',
           deductions: data.salaryDetails?.deductions?.toString() || '0',
-          assignedOffices: data.assignedOffices?.map(o => typeof o === 'object' ? o._id : o) || [],
+          assignedOffices: data.assignedOffices?.map(o => (o && typeof o === 'object') ? (o._id || o) : o) || [],
         });
+      } else {
+        setMessage({ type: 'error', text: data.msg || 'Failed to load employee data' });
       }
     } catch (err) {
       console.error("Fetch error:", err);
@@ -125,10 +132,19 @@ const AddEmployee = () => {
       data.append('bonus', formData.bonus);
       data.append('deductions', formData.deductions);
       
-      // Append each office ID individually
-      formData.assignedOffices.forEach(id => {
-        data.append('assignedOffices', id);
-      });
+      // Append faceImage if a new file was selected
+      if (image) {
+        data.append('faceImage', image);
+      }
+
+      // Append assigned offices or empty indicator
+      if (formData.assignedOffices.length === 0) {
+        data.append('assignedOffices', '');
+      } else {
+        formData.assignedOffices.forEach(id => {
+          data.append('assignedOffices', id);
+        });
+      }
 
       const url = isEdit ? `${API_BASE}/employees/${id}` : `${API_BASE}/employees`;
       const method = isEdit ? 'PUT' : 'POST';
@@ -148,7 +164,7 @@ const AddEmployee = () => {
       }
 
       setMessage({ type: 'success', text: isEdit ? 'Employee updated successfully!' : 'Employee created successfully!' });
-      setTimeout(() => window.location.href = '/employees', 2000);
+      setTimeout(() => navigate('/employees'), 2000);
       
     } catch (error) {
       console.error('Submit Error:', error);
@@ -170,7 +186,7 @@ const AddEmployee = () => {
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
-          <button onClick={() => window.location.href = '/employees'} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+          <button onClick={() => navigate('/employees')} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
             <ArrowLeft size={24} />
           </button>
           <div>
@@ -283,6 +299,8 @@ const AddEmployee = () => {
                 <div className="w-32 h-32 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden">
                   {image ? (
                     <img src={URL.createObjectURL(image)} alt="Preview" className="w-full h-full object-cover" />
+                  ) : existingPhoto ? (
+                    <img src={`${BASE_URL}/uploads/${existingPhoto}`} alt="Existing Verification Photo" className="w-full h-full object-cover" />
                   ) : (
                     <Camera className="text-gray-300" size={32} />
                   )}
@@ -300,7 +318,7 @@ const AddEmployee = () => {
         )}
 
         <div className="flex justify-end gap-4 pb-12">
-          <button type="button" onClick={() => window.location.href = '/employees'} className="px-8 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all">Cancel</button>
+          <button type="button" onClick={() => navigate('/employees')} className="px-8 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all">Cancel</button>
           <button type="submit" disabled={loading} className="flex items-center gap-2 px-10 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 disabled:opacity-50 transition-all">
             {loading ? <Loader2 className="animate-spin" /> : <Save size={20} />}
             {loading ? (isEdit ? 'Updating Profile...' : 'Creating Profile...') : (isEdit ? 'Update Employee' : 'Save & Create Employee')}
