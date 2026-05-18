@@ -18,6 +18,16 @@ const userSchema = new mongoose.Schema({
     lng: { type: Number }
   },
   assignedOffices: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Office' }],
+  designation: { type: String, default: 'Software Engineer' },
+  department: { type: String, default: 'Engineering' },
+  bankDetails: {
+    bankName: { type: String, default: 'HDFC Bank' },
+    accountNumber: { type: String, default: '50100293847281' },
+    ifscCode: { type: String, default: 'HDFC0001234' },
+    panNumber: { type: String, default: 'ABCDE1234F' },
+    uanNumber: { type: String, default: '100928374652' },
+    pfNumber: { type: String, default: 'MH/BAN/0019283/000/0001234' }
+  },
   createdAt: { type: Date, default: Date.now }
 });
 

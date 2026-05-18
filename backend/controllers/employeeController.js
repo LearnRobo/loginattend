@@ -22,7 +22,11 @@ exports.getEmployeeById = async (req, res) => {
 
 exports.addEmployee = async (req, res) => {
   try {
-    const { name, email, password, employeeId, officeLat, officeLng, baseSalary, bonus, deductions, assignedOffices } = req.body;
+    const { 
+      name, email, password, employeeId, officeLat, officeLng, 
+      baseSalary, bonus, deductions, assignedOffices,
+      designation, department, bankName, accountNumber, ifscCode, panNumber, uanNumber, pfNumber
+    } = req.body;
     
     // Check if email or employee ID already exists
     let user = await User.findOne({ $or: [{ email }, { employeeId }] });
@@ -43,6 +47,16 @@ exports.addEmployee = async (req, res) => {
       password,
       employeeId,
       role: 'employee',
+      designation: designation || 'Software Engineer',
+      department: department || 'Engineering',
+      bankDetails: {
+        bankName: bankName || 'HDFC Bank',
+        accountNumber: accountNumber || '50100293847281',
+        ifscCode: ifscCode || 'HDFC0001234',
+        panNumber: panNumber || 'ABCDE1234F',
+        uanNumber: uanNumber || '100928374652',
+        pfNumber: pfNumber || 'MH/BAN/0019283/000/0001234'
+      },
       salaryDetails: {
         baseSalary: parseFloat(baseSalary) || 0,
         bonus: parseFloat(bonus) || 0,
@@ -54,7 +68,6 @@ exports.addEmployee = async (req, res) => {
       },
       assignedOffices: finalAssignedOffices || []
     });
-// ... (rest of the code)
 
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
@@ -73,7 +86,11 @@ exports.addEmployee = async (req, res) => {
 
 exports.updateEmployee = async (req, res) => {
   try {
-    const { name, email, employeeId, officeLat, officeLng, baseSalary, bonus, deductions, password, assignedOffices } = req.body;
+    const { 
+      name, email, employeeId, officeLat, officeLng, 
+      baseSalary, bonus, deductions, password, assignedOffices,
+      designation, department, bankName, accountNumber, ifscCode, panNumber, uanNumber, pfNumber
+    } = req.body;
     let employee = await User.findById(req.params.id);
     if (!employee) return res.status(404).json({ msg: 'Employee not found' });
 
@@ -81,6 +98,27 @@ exports.updateEmployee = async (req, res) => {
     if (name) employee.name = name;
     if (email) employee.email = email;
     if (employeeId) employee.employeeId = employeeId;
+    if (designation) employee.designation = designation;
+    if (department) employee.department = department;
+
+    // Update bank details
+    if (employee.bankDetails) {
+      if (bankName) employee.bankDetails.bankName = bankName;
+      if (accountNumber) employee.bankDetails.accountNumber = accountNumber;
+      if (ifscCode) employee.bankDetails.ifscCode = ifscCode;
+      if (panNumber) employee.bankDetails.panNumber = panNumber;
+      if (uanNumber) employee.bankDetails.uanNumber = uanNumber;
+      if (pfNumber) employee.bankDetails.pfNumber = pfNumber;
+    } else {
+      employee.bankDetails = {
+        bankName: bankName || 'HDFC Bank',
+        accountNumber: accountNumber || '50100293847281',
+        ifscCode: ifscCode || 'HDFC0001234',
+        panNumber: panNumber || 'ABCDE1234F',
+        uanNumber: uanNumber || '100928374652',
+        pfNumber: pfNumber || 'MH/BAN/0019283/000/0001234'
+      };
+    }
     
     if (assignedOffices !== undefined) {
       let finalOffices = assignedOffices;

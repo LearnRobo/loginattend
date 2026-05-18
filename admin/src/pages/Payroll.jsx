@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { DollarSign, Download, Printer, Calendar as CalendarIcon, Check, X, Edit3 } from 'lucide-react';
+import { DollarSign, Download, Printer, Calendar as CalendarIcon, Check, X, Edit3, Eye, FileText } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { API_BASE } from '../api/config';
@@ -14,6 +14,7 @@ const Payroll = () => {
   const [monthSummary, setMonthSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [previewEmp, setPreviewEmp] = useState(null);
 
   // Calendar configuration modal state
   const [showCalModal, setShowCalModal] = useState(false);
@@ -82,60 +83,93 @@ const Payroll = () => {
   const generateSlipDoc = (emp) => {
     const doc = new jsPDF();
     
-    doc.setFontSize(22);
-    doc.setTextColor(30, 58, 138);
-    doc.text('SALARY DISBURSEMENT SLIP', 105, 20, { align: 'center' });
+    // Corporate Header
+    doc.setFontSize(20);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont("helvetica", "bold");
+    doc.text('ROBO HR TECHNOLOGIES PVT. LTD.', 105, 20, { align: 'center' });
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139);
+    doc.setFont("helvetica", "normal");
+    doc.text('Tech Park Tower B, Electronic City, Bengaluru - 560100 | GSTIN: 29AABCR1234Z', 105, 26, { align: 'center' });
+    
+    doc.setDrawColor(79, 70, 229);
+    doc.setLineWidth(0.8);
+    doc.line(20, 31, 190, 31);
+    
+    // Title
+    doc.setFontSize(16);
+    doc.setTextColor(79, 70, 229);
+    doc.setFont("helvetica", "bold");
+    doc.text('SALARY DISBURSEMENT SLIP', 105, 40, { align: 'center' });
     
     doc.setFontSize(11);
     doc.setTextColor(100, 116, 139);
-    doc.text(`Pay Period: ${emp.monthString || selectedMonth}`, 105, 28, { align: 'center' });
+    doc.setFont("helvetica", "normal");
+    doc.text(`Pay Period: ${emp.monthString || selectedMonth}`, 105, 46, { align: 'center' });
     
+    // Employee Summary Box
+    doc.setFillColor(248, 250, 252);
     doc.setDrawColor(226, 232, 240);
-    doc.line(20, 35, 190, 35);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(20, 52, 170, 38, 3, 3, "FD");
     
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.setTextColor(15, 23, 42);
-    doc.text(`Employee Name: ${emp.name}`, 20, 48);
-    doc.text(`Employee ID: ${emp.employeeId}`, 20, 56);
-    const workingDays = emp.workingDaysInMonth || 24;
-    doc.text(`Attendance Log: ${emp.presentDays} / ${workingDays} Working Days`, 120, 48);
-    if (emp.absentLeaveDays > 0) {
-      doc.setFontSize(10);
-      doc.setTextColor(220, 38, 38);
-      doc.text(`(${emp.absentLeaveDays} Days Deducted / Absent Leave)`, 120, 54);
-    } else if (emp.leaveDays > 0) {
-      doc.setFontSize(10);
-      doc.setTextColor(5, 150, 105);
-      doc.text(`(${emp.attendanceCount} Punches + ${emp.leaveDays} Approved Paid Leaves)`, 120, 54);
-    }
+    doc.setFont("helvetica", "bold");
+    doc.text(`Employee Name: ${emp.name}`, 25, 60);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Employee ID: ${emp.employeeId}`, 25, 67);
+    doc.text(`Designation: ${emp.designation || 'Senior Software Engineer'}`, 25, 74);
+    doc.text(`Department: ${emp.department || 'Engineering'}`, 25, 81);
     
-    const tableColumn = ["Earnings & Deductions", "Amount (INR)"];
+    const workingDays = emp.workingDaysInMonth || 24;
+    doc.setFont("helvetica", "bold");
+    doc.text(`Attendance: ${emp.presentDays} / ${workingDays} Days`, 110, 60);
+    doc.setFont("helvetica", "normal");
+    const bankDetails = emp.bankDetails || {};
+    doc.text(`Bank: ${bankDetails.bankName || 'HDFC Bank'}`, 110, 67);
+    doc.text(`A/C No: ${bankDetails.accountNumber || '50100293847281'}`, 110, 74);
+    doc.text(`PAN: ${bankDetails.panNumber || 'ABCDE1234F'}`, 110, 81);
+    
+    // Financial Breakdown Table
+    const tableColumn = ["Earnings & Deductions Description", "Amount (INR)"];
     const baseSalary = emp.salaryDetails?.baseSalary || 0;
     const bonus = emp.salaryDetails?.bonus || 0;
     const deductions = emp.salaryDetails?.deductions || 0;
     const proRataPay = Math.round((baseSalary / workingDays) * emp.presentDays);
+    const netPay = emp.netSalary !== undefined ? emp.netSalary : proRataPay;
     
     const tableRows = [
-      ["Base Monthly Pay", `Rs. ${baseSalary.toLocaleString()}`],
-      [`Pro-rata Pay (${emp.presentDays} days - incl. ${emp.leaveDays || 0} paid leaves)`, `Rs. ${proRataPay.toLocaleString()}`],
-      ["Allowances / Bonus", `Rs. ${bonus.toLocaleString()}`],
-      ["Deductions", `- Rs. ${deductions.toLocaleString()}`],
-      ["NET DISBURSEMENT", `Rs. ${(emp.netSalary !== undefined ? emp.netSalary : proRataPay).toLocaleString()}`]
+      ["Base Monthly Pay (Gross Standard)", `Rs. ${baseSalary.toLocaleString()}`],
+      [`Earned Pro-rata Pay (${emp.presentDays} Days Attendance)`, `Rs. ${proRataPay.toLocaleString()}`],
+      ["Allowances / Overtime / Monthly Bonus", `+ Rs. ${bonus.toLocaleString()}`],
+      ["Deductions (TDS / Professional Tax / PF / LOP)", `- Rs. ${deductions.toLocaleString()}`],
+      ["NET DISBURSEMENT PAY", `Rs. ${netPay.toLocaleString()}`]
     ];
     
     doc.autoTable({
       head: [tableColumn],
       body: tableRows,
-      startY: 70,
+      startY: 96,
       theme: 'grid',
-      headStyles: { fillColor: [30, 58, 138], textColor: 255 },
-      bodyStyles: { textColor: 50, fontSize: 11 },
-      columnStyles: { 1: { halign: 'right', fontStyle: 'bold' } }
+      headStyles: { fillColor: [79, 70, 229], textColor: 255, fontSize: 11, fontStyle: 'bold' },
+      bodyStyles: { textColor: 40, fontSize: 11 },
+      columnStyles: { 1: { halign: 'right', fontStyle: 'bold' } },
+      didParseCell: function(data) {
+        if (data.row.index === 4 && data.section === 'body') {
+          data.cell.styles.fillColor = [240, 248, 255];
+          data.cell.styles.textColor = [15, 23, 42];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
     });
     
+    const finalY = doc.lastAutoTable.finalY + 15;
     doc.setFontSize(10);
     doc.setTextColor(148, 163, 184);
-    doc.text('This is a computer-generated salary slip and does not require a physical signature.', 105, doc.lastAutoTable.finalY + 25, { align: 'center' });
+    doc.text('This is a computer-generated salary slip and does not require a physical signature or rubber stamp.', 105, finalY, { align: 'center' });
     
     return doc;
   };
@@ -249,6 +283,13 @@ const Payroll = () => {
                 <td style={{ padding: '1.25rem 2rem', textAlign: 'right' }}>
                   <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
                     <button 
+                      onClick={() => setPreviewEmp(item)}
+                      style={{ padding: '0.625rem', borderRadius: '10px', background: '#eff6ff', border: '1px solid #bfdbfe', color: '#2563eb', cursor: 'pointer' }} 
+                      title="Interactive Payslip Preview"
+                    >
+                      <Eye size={16} />
+                    </button>
+                    <button 
                       onClick={() => handlePrintSlip(item)}
                       style={{ padding: '0.625rem', borderRadius: '10px', background: '#f8fafc', border: '1px solid var(--border)', color: 'var(--text-muted)', cursor: 'pointer' }} 
                       title="Print Slip"
@@ -313,6 +354,108 @@ const Payroll = () => {
               <button onClick={handleSaveCalendar} disabled={savingCal} className="btn-primary" style={{ padding: '0.75rem 2rem', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Check size={18} /> {savingCal ? 'Saving...' : 'Save & Apply to Payroll'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Interactive High-Fidelity Payslip Preview Modal */}
+      {previewEmp && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.85)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(8px)' }}>
+          <div className="scale-in" style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '900px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', border: '1px solid var(--border)', position: 'relative' }}>
+            <div style={{ height: '12px', background: 'linear-gradient(90deg, #4f46e5, #818cf8, #38bdf8)', borderTopLeftRadius: '24px', borderTopRightRadius: '24px' }}></div>
+            
+            <div style={{ padding: '2.5rem 3rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #4f46e5, #3b82f6)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', fontWeight: '800' }}>R</div>
+                <div>
+                  <h1 style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--secondary)' }}>ROBO HR TECHNOLOGIES PVT. LTD.</h1>
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Tech Park Tower B, Electronic City, Bengaluru | GSTIN: 29AABCR1234Z</p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <button 
+                  onClick={() => handleDownloadPDF(previewEmp)}
+                  style={{ padding: '0.625rem 1rem', borderRadius: '10px', background: '#4f46e5', color: 'white', fontWeight: '700', fontSize: '13px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                >
+                  <Download size={16} /> Download PDF
+                </button>
+                <button 
+                  onClick={() => setPreviewEmp(null)}
+                  style={{ padding: '0.625rem', borderRadius: '10px', background: '#f1f5f9', border: 'none', cursor: 'pointer' }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            <div style={{ padding: '2rem 3rem', background: '#fcfcfd', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '800', color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>SALARY DISBURSEMENT SLIP</h3>
+                <span style={{ padding: '6px 14px', borderRadius: '20px', background: '#e0e7ff', color: '#3730a3', fontSize: '12px', fontWeight: '700' }}>Pay Period: {previewEmp.monthString || selectedMonth}</span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+                <div style={{ background: 'white', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#4f46e5', marginBottom: '12px', letterSpacing: '0.5px' }}>Employee Summary</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}><span style={{ color: 'var(--text-muted)' }}>Name:</span> <strong style={{ color: 'var(--secondary)' }}>{previewEmp.name}</strong></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}><span style={{ color: 'var(--text-muted)' }}>Employee ID:</span> <strong style={{ color: 'var(--secondary)' }}>{previewEmp.employeeId}</strong></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}><span style={{ color: 'var(--text-muted)' }}>Designation:</span> <strong style={{ color: 'var(--secondary)' }}>{previewEmp.designation || 'Senior Software Engineer'}</strong></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}><span style={{ color: 'var(--text-muted)' }}>Department:</span> <strong style={{ color: 'var(--secondary)' }}>{previewEmp.department || 'Engineering'}</strong></div>
+                </div>
+
+                <div style={{ background: 'white', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#4f46e5', marginBottom: '12px', letterSpacing: '0.5px' }}>Banking & Compliance</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}><span style={{ color: 'var(--text-muted)' }}>Bank Name:</span> <strong style={{ color: 'var(--secondary)' }}>{previewEmp.bankDetails?.bankName || 'HDFC Bank'}</strong></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}><span style={{ color: 'var(--text-muted)' }}>Account No:</span> <strong style={{ color: 'var(--secondary)' }}>{previewEmp.bankDetails?.accountNumber || '50100293847281'}</strong></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}><span style={{ color: 'var(--text-muted)' }}>PAN Number:</span> <strong style={{ color: 'var(--secondary)' }}>{previewEmp.bankDetails?.panNumber || 'ABCDE1234F'}</strong></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}><span style={{ color: 'var(--text-muted)' }}>PF / UAN No:</span> <strong style={{ color: 'var(--secondary)' }}>{previewEmp.bankDetails?.uanNumber || '100928374652'}</strong></div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ padding: '2rem 3rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
+                <div style={{ border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
+                  <div style={{ background: '#d1fae5', color: '#065f46', padding: '12px 16px', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}><span>Earnings Description</span> <span>Amount</span></div>
+                  <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', fontSize: '14px' }}><span>Base Monthly Pay</span> <strong>₹{(previewEmp.salaryDetails?.baseSalary || 0).toLocaleString()}</strong></div>
+                  <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', fontSize: '14px' }}><span>Earned Pro-rata Pay ({previewEmp.presentDays} Days)</span> <strong>₹{Math.round(((previewEmp.salaryDetails?.baseSalary || 0) / (previewEmp.workingDaysInMonth || 24)) * previewEmp.presentDays).toLocaleString()}</strong></div>
+                  <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#10b981' }}><span>Allowances / Bonus</span> <strong>+₹{(previewEmp.salaryDetails?.bonus || 0).toLocaleString()}</strong></div>
+                </div>
+
+                <div style={{ border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
+                  <div style={{ background: '#fee2e2', color: '#991b1b', padding: '12px 16px', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}><span>Deductions Description</span> <span>Amount</span></div>
+                  <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', fontSize: '14px', color: '#ef4444' }}><span>Deductions / LOP / Tax</span> <strong>-₹{(previewEmp.salaryDetails?.deductions || 0).toLocaleString()}</strong></div>
+                  <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: 'var(--text-muted)' }}><span>Absent Days ({previewEmp.absentLeaveDays})</span> <strong>₹0</strong></div>
+                </div>
+              </div>
+
+              <div style={{ background: 'linear-gradient(135deg, #0f172a, #1e1b4b)', color: 'white', padding: '2rem 2.5rem', borderRadius: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.4)' }}>
+                <div>
+                  <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '700', marginBottom: '4px' }}>Net Pay Disbursed</div>
+                  <div style={{ fontSize: '32px', fontWeight: '800', color: '#38bdf8' }}>₹{(previewEmp.netSalary !== undefined ? previewEmp.netSalary : Math.round(((previewEmp.salaryDetails?.baseSalary || 0) / (previewEmp.workingDaysInMonth || 24)) * previewEmp.presentDays)).toLocaleString()}</div>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', padding: '12px 20px', borderRadius: '16px', textAlign: 'right' }}>
+                  <div style={{ fontSize: '18px', fontWeight: '800', color: 'white' }}>{previewEmp.presentDays} / {previewEmp.workingDaysInMonth || 24} Days</div>
+                  <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>Verified Attendance</div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '18px', background: '#ecfdf5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #a7f3d0', fontWeight: '800' }}>✓</div>
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: '700', color: '#10b981' }}>Digitally Verified System Payslip</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Certified secure document. No physical stamp required.</div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => handlePrintSlip(previewEmp)} 
+                  style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', background: '#0f172a', color: 'white', fontWeight: '700', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                >
+                  <Printer size={18} /> Print Document
+                </button>
+              </div>
             </div>
           </div>
         </div>

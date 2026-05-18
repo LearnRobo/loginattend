@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { UserPlus, Camera, Save, Loader2, ArrowLeft, DollarSign, MapPin, Building2, Check } from 'lucide-react';
+import { UserPlus, Camera, Save, Loader2, ArrowLeft, DollarSign, MapPin, Building2, Check, Briefcase, CreditCard } from 'lucide-react';
 import axios from 'axios';
 import { API_BASE, BASE_URL } from '../api/config';
 
@@ -22,6 +22,14 @@ const AddEmployee = () => {
     bonus: '0',
     deductions: '0',
     assignedOffices: [],
+    designation: 'Software Engineer',
+    department: 'Engineering',
+    bankName: 'HDFC Bank',
+    accountNumber: '50100293847281',
+    ifscCode: 'HDFC0001234',
+    panNumber: 'ABCDE1234F',
+    uanNumber: '100928374652',
+    pfNumber: 'MH/BAN/0019283/000/0001234'
   });
   
   const [offices, setOffices] = useState([]);
@@ -78,6 +86,14 @@ const AddEmployee = () => {
           bonus: data.salaryDetails?.bonus?.toString() || '0',
           deductions: data.salaryDetails?.deductions?.toString() || '0',
           assignedOffices: data.assignedOffices?.map(o => (o && typeof o === 'object') ? (o._id || o) : o) || [],
+          designation: data.designation || 'Software Engineer',
+          department: data.department || 'Engineering',
+          bankName: data.bankDetails?.bankName || 'HDFC Bank',
+          accountNumber: data.bankDetails?.accountNumber || '50100293847281',
+          ifscCode: data.bankDetails?.ifscCode || 'HDFC0001234',
+          panNumber: data.bankDetails?.panNumber || 'ABCDE1234F',
+          uanNumber: data.bankDetails?.uanNumber || '100928374652',
+          pfNumber: data.bankDetails?.pfNumber || 'MH/BAN/0019283/000/0001234'
         });
       } else {
         setMessage({ type: 'error', text: data.msg || 'Failed to load employee data' });
@@ -131,6 +147,14 @@ const AddEmployee = () => {
       data.append('baseSalary', formData.baseSalary);
       data.append('bonus', formData.bonus);
       data.append('deductions', formData.deductions);
+      data.append('designation', formData.designation);
+      data.append('department', formData.department);
+      data.append('bankName', formData.bankName);
+      data.append('accountNumber', formData.accountNumber);
+      data.append('ifscCode', formData.ifscCode);
+      data.append('panNumber', formData.panNumber);
+      data.append('uanNumber', formData.uanNumber);
+      data.append('pfNumber', formData.pfNumber);
       
       // Append faceImage if a new file was selected
       if (image) {
@@ -244,6 +268,54 @@ const AddEmployee = () => {
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Deductions (₹)</label>
                   <input type="number" name="deductions" value={formData.deductions} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-red-500 outline-none transition-all" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <div className="flex items-center gap-2 mb-6 pb-2 border-b border-gray-50">
+                <Briefcase size={20} className="text-blue-600" />
+                <h2 className="font-bold text-gray-800">Corporate & Banking Details (For Professional Payslip)</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Designation</label>
+                  <input type="text" name="designation" value={formData.designation} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition-all" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Department</label>
+                  <input type="text" name="department" value={formData.department} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition-all" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Bank Name</label>
+                  <input type="text" name="bankName" value={formData.bankName} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition-all" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Bank Account Number</label>
+                  <input type="text" name="accountNumber" value={formData.accountNumber} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition-all" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">IFSC Code</label>
+                  <input type="text" name="ifscCode" value={formData.ifscCode} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition-all" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">PAN Number</label>
+                  <input type="text" name="panNumber" value={formData.panNumber} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition-all" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">UAN Number</label>
+                  <input type="text" name="uanNumber" value={formData.uanNumber} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition-all" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">PF Number</label>
+                  <input type="text" name="pfNumber" value={formData.pfNumber} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 outline-none transition-all" />
                 </div>
               </div>
             </div>

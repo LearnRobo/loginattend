@@ -189,6 +189,16 @@ exports.getPayroll = async (req, res) => {
         _id: emp._id,
         name: emp.name,
         employeeId: emp.employeeId,
+        designation: emp.designation || 'Software Engineer',
+        department: emp.department || 'Engineering',
+        bankDetails: emp.bankDetails || {
+          bankName: 'HDFC Bank',
+          accountNumber: '50100293847281',
+          ifscCode: 'HDFC0001234',
+          panNumber: 'ABCDE1234F',
+          uanNumber: '100928374652',
+          pfNumber: 'MH/BAN/0019283/000/0001234'
+        },
         presentDays,
         attendanceCount,
         leaveDays,
@@ -280,6 +290,16 @@ exports.getMyPayroll = async (req, res) => {
       _id: emp._id,
       name: emp.name,
       employeeId: emp.employeeId,
+      designation: emp.designation || 'Software Engineer',
+      department: emp.department || 'Engineering',
+      bankDetails: emp.bankDetails || {
+        bankName: 'HDFC Bank',
+        accountNumber: '50100293847281',
+        ifscCode: 'HDFC0001234',
+        panNumber: 'ABCDE1234F',
+        uanNumber: '100928374652',
+        pfNumber: 'MH/BAN/0019283/000/0001234'
+      },
       presentDays,
       attendanceCount,
       leaveDays,

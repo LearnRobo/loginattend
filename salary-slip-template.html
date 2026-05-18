@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Salary Slip Template | Executive Payslip</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --primary-light: #e0e7ff;
+            --secondary: #0f172a;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .payslip-wrapper {
+            background: var(--bg-card);
+            max-width: 900px;
+            width: 100%;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px -15px rgba(15, 23, 42, 0.1);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            overflow: hidden;
+        }
+
+        /* Top Accent Banner */
+        .banner {
+            height: 12px;
+            background: linear-gradient(90deg, #4f46e5, #818cf8, #38bdf8);
+        }
+
+        /* Header Section */
+        .header {
+            padding: 48px 48px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .company-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-box {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #4f46e5, #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
+        }
+
+        .company-details h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--secondary);
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .company-details p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .title-box {
+            text-align: right;
+        }
+
+        .title-box h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .title-box .pay-period {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Employee Profile Grid */
+        .profile-section {
+            padding: 36px 48px;
+            background-color: #fcfcfd;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.01);
+        }
+
+        .info-card-header {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 16px;
+            letter-spacing: 0.8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .info-val {
+            color: var(--secondary);
+            font-weight: 700;
+            text-align: right;
+        }
+
+        /* Financial Breakdown */
+        .financial-section {
+            padding: 40px 48px;
+        }
+
+        .table-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin-bottom: 36px;
+        }
+
+        @media (max-width: 768px) {
+            .table-container, .grid-container {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                gap: 24px;
+            }
+            .title-box {
+                text-align: left;
+            }
+        }
+
+        .table-box {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .earnings-header {
+            background-color: var(--success-light);
+            color: #065f46;
+        }
+
+        .deductions-header {
+            background-color: var(--danger-light);
+            color: #991b1b;
+        }
+
+        .item-list {
+            list-style: none;
+        }
+
+        .item-row {
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            font-size: 15px;
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .item-amt {
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .subtotal-row {
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            background-color: #f8fafc;
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--secondary);
+            border-top: 2px solid var(--border);
+        }
+
+        /* Net Pay Summary Banner */
+        .net-summary-box {
+            background: linear-gradient(135deg, #0f172a, #1e1b4b);
+            color: white;
+            border-radius: 20px;
+            padding: 32px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 15px 30px -10px rgba(15, 23, 42, 0.5);
+            margin-bottom: 40px;
+        }
+
+        .net-pay-label {
+            font-size: 14px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .net-pay-amount {
+            font-family: 'Outfit', sans-serif;
+            font-size: 40px;
+            font-weight: 800;
+            color: #38bdf8;
+            line-height: 1;
+        }
+
+        .net-words {
+            font-size: 15px;
+            color: #cbd5e1;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .attendance-badge {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 16px 24px;
+            border-radius: 16px;
+            text-align: right;
+        }
+
+        .att-val {
+            font-size: 22px;
+            font-weight: 800;
+            color: white;
+        }
+
+        .att-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        /* Verification & Footer */
+        .verification {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-top: 1px solid var(--border);
+            padding-top: 32px;
+        }
+
+        .seal-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .seal-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background: #ecfdf5;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #a7f3d0;
+        }
+
+        .seal-text h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--success);
+            margin-bottom: 2px;
+        }
+
+        .seal-text p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.6);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border);
+            background-color: white;
+            color: var(--secondary);
+        }
+
+        .btn-outline:hover {
+            background-color: #f1f5f9;
+        }
+
+        /* Print Specific Styling */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .payslip-wrapper {
+                border: none;
+                box-shadow: none;
+                max-width: 100%;
+            }
+            .action-buttons {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="payslip-wrapper">
+        <div class="banner"></div>
+
+        <header class="header">
+            <div class="company-info">
+                <div class="logo-box">R</div>
+                <div class="company-details">
+                    <h1>ROBO HR TECHNOLOGIES PVT. LTD.</h1>
+                    <p>Tech Park Tower B, 4th Floor, Electronic City, Bengaluru - 560100</p>
+                    <p>GSTIN: 29AABCR1234Z1ZM | HR Support: payroll@robohr.com</p>
+                </div>
+            </div>
+            <div class="title-box">
+                <h2>SALARY DISBURSEMENT SLIP</h2>
+                <div class="pay-period">Pay Period: May 2026</div>
+            </div>
+        </header>
+
+        <section class="profile-section">
+            <div class="grid-container">
+                <!-- Employee Summary Card -->
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Employee Profile Summary
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Full Name:</span>
+                        <span class="info-val">Dr. Ashwin Sharma</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Employee ID:</span>
+                        <span class="info-val">EMP-9082</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Designation:</span>
+                        <span class="info-val">Senior AI Architect</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Department:</span>
+                        <span class="info-val">Advanced Systems R&D</span>
+                    </div>
+                </div>
+
+                <!-- Banking & Compliance Card -->
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                        Banking & Compliance Details
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Bank Name:</span>
+                        <span class="info-val">HDFC Bank Ltd.</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Account No:</span>
+                        <span class="info-val">50100293847281</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">IFSC Code:</span>
+                        <span class="info-val">HDFC0001234</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">PAN Number:</span>
+                        <span class="info-val">ABCDE1234F</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">UAN / PF Number:</span>
+                        <span class="info-val">100928374652</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="financial-section">
+            <div class="table-container">
+                <!-- Earnings Box -->
+                <div class="table-box">
+                    <div class="table-header earnings-header">
+                        <span>Earnings Description</span>
+                        <span>Amount (₹)</span>
+                    </div>
+                    <ul class="item-list">
+                        <li class="item-row">
+                            <span class="item-name">Basic Monthly Pay</span>
+                            <span class="item-amt">₹65,000</span>
+                        </li>
+                        <li class="item-row">
+                            <span class="item-name">House Rent Allowance (HRA)</span>
+                            <span class="item-amt">₹26,000</span>
+                        </li>
+                        <li class="item-row">
+                            <span class="item-name">Special Allowance</span>
+                            <span class="item-amt">₹18,500</span>
+                        </li>
+                        <li class="item-row">
+                            <span class="item-name">Bonus / Overtime Incentive</span>
+                            <span class="item-amt" style="color: var(--success);">+ ₹8,500</span>
+                        </li>
+                    </ul>
+                    <div class="subtotal-row">
+                        <span>Total Gross Earnings</span>
+                        <span style="color: var(--success);">₹1,18,000</span>
+                    </div>
+                </div>
+
+                <!-- Deductions Box -->
+                <div class="table-box">
+                    <div class="table-header deductions-header">
+                        <span>Deductions Description</span>
+                        <span>Amount (₹)</span>
+                    </div>
+                    <ul class="item-list">
+                        <li class="item-row">
+                            <span class="item-name">Provident Fund (PF - Employee)</span>
+                            <span class="item-amt">₹1,800</span>
+                        </li>
+                        <li class="item-row">
+                            <span class="item-name">Professional Tax (PT)</span>
+                            <span class="item-amt">₹200</span>
+                        </li>
+                        <li class="item-row">
+                            <span class="item-name">Tax Deducted at Source (TDS)</span>
+                            <span class="item-amt">₹7,200</span>
+                        </li>
+                        <li class="item-row">
+                            <span class="item-name">Absenteeism LOP Deductions</span>
+                            <span class="item-amt" style="color: var(--danger);">- ₹0</span>
+                        </li>
+                    </ul>
+                    <div class="subtotal-row">
+                        <span>Total Deductions</span>
+                        <span style="color: var(--danger);">₹9,200</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Net Disbursed Pay Summary -->
+            <div class="net-summary-box">
+                <div>
+                    <div class="net-pay-label">Total Net Pay Disbursement</div>
+                    <div class="net-pay-amount">₹1,08,800</div>
+                    <div class="net-words">One Lakh Eight Thousand Eight Hundred Rupees Only</div>
+                </div>
+                <div class="attendance-badge">
+                    <div class="att-val">24 / 24 Days</div>
+                    <div class="att-label">Verified Pay Attendance</div>
+                </div>
+            </div>
+
+            <div class="verification">
+                <div class="seal-box">
+                    <div class="seal-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+                    </div>
+                    <div class="seal-text">
+                        <h4>Digitally Verified & Encrypted</h4>
+                        <p>System-generated payslip. Certified under IT Act 2000. No physical signature required.</p>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button onclick="window.print()" class="btn btn-outline">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+                        Print Slip
+                    </button>
+                    <button onclick="window.print()" class="btn btn-primary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                        Download Executive PDF
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+</body>
+</html>
