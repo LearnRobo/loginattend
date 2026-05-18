@@ -206,3 +206,82 @@ exports.getPayroll = async (req, res) => {
     res.status(500).json({ msg: 'Server Error during payroll calculation' });
   }
 };
+
+exports.getMyPayroll = async (req, res) => {
+  try {
+    const { month } = req.query;
+    let targetYear, targetMonth, monthString;
+    if (month) {
+      const [y, m] = month.split('-');
+      targetYear = parseInt(y, 10);
+      targetMonth = parseInt(m, 10) - 1;
+      monthString = month;
+    } else {
+      const now = new Date();
+      targetYear = now.getFullYear();
+      targetMonth = now.getMonth();
+      monthString = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}`;
+    }
+
+    let calendar = await MonthlyCalendar.findOne({ monthString });
+    if (!calendar) {
+      const defaultCalData = generateDefaultCalendar(targetYear, targetMonth, monthString);
+      calendar = await MonthlyCalendar.create(defaultCalData);
+    }
+
+    const workingDaysInMonth = calendar.totalWorkingDays;
+    const emp = await User.findById(req.user.id).select('-password');
+    if (!emp) {
+      return res.status(404).json({ msg: 'Employee not found' });
+    }
+
+    const actualPresent = await Attendance.countDocuments({
+      user: emp._id,
+      status: 'present',
+      date: { $regex: `^${monthString}` }
+    });
+
+    const approvedLeaves = await Leave.find({
+      user: emp._id,
+      status: 'approved'
+    });
+    const leaveDays = countApprovedLeaveDaysInMonth(approvedLeaves, targetYear, targetMonth);
+
+    let attendanceCount = actualPresent;
+    if (actualPresent === 0 && leaveDays === 0) {
+      attendanceCount = Math.min(22, workingDaysInMonth);
+    }
+
+    const presentDays = Math.min(workingDaysInMonth, attendanceCount + leaveDays);
+
+    const baseSalary = emp.salaryDetails?.baseSalary || 35000;
+    const bonus = emp.salaryDetails?.bonus || 0;
+    const deductions = emp.salaryDetails?.deductions || 0;
+
+    let netSalary = 0;
+    if (workingDaysInMonth > 0) {
+      const dailyWage = baseSalary / workingDaysInMonth;
+      const calculatedPay = (dailyWage * presentDays) + bonus - deductions;
+      netSalary = Math.max(0, Math.round(calculatedPay));
+    } else {
+      netSalary = Math.max(0, bonus - deductions);
+    }
+
+    res.json({
+      _id: emp._id,
+      name: emp.name,
+      employeeId: emp.employeeId,
+      presentDays,
+      attendanceCount,
+      leaveDays,
+      workingDaysInMonth,
+      salaryDetails: emp.salaryDetails,
+      netSalary,
+      monthString,
+      calendar
+    });
+  } catch (err) {
+    console.error('Get My Payroll Error:', err);
+    res.status(500).json({ msg: 'Server Error loading salary details' });
+  }
+};
