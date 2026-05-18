@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Attendance = require('../models/Attendance');
 const MonthlyCalendar = require('../models/MonthlyCalendar');
+const Leave = require('../models/Leave');
 
 // Helper to generate default calendar for a month
 const generateDefaultCalendar = (year, month, monthString) => {
@@ -33,9 +34,31 @@ const generateDefaultCalendar = (year, month, monthString) => {
   return { monthString, year, month, totalWorkingDays, days };
 };
 
+const countApprovedLeaveDaysInMonth = (approvedLeaves, year, month) => {
+  let leaveDays = 0;
+  const monthStart = new Date(year, month, 1);
+  const monthEnd = new Date(year, month + 1, 0, 23, 59, 59);
+
+  for (const leave of approvedLeaves) {
+    const start = new Date(leave.startDate);
+    const end = new Date(leave.endDate);
+
+    if (start <= monthEnd && end >= monthStart) {
+      let curr = new Date(start);
+      while (curr <= end) {
+        if (curr.getFullYear() === year && curr.getMonth() === month) {
+          leaveDays++;
+        }
+        curr.setDate(curr.getDate() + 1);
+      }
+    }
+  }
+  return leaveDays;
+};
+
 exports.getCalendar = async (req, res) => {
   try {
-    const { month } = req.query; // YYYY-MM
+    const { month } = req.query;
     let targetYear, targetMonth, monthString;
     
     if (month) {
@@ -124,13 +147,26 @@ exports.getPayroll = async (req, res) => {
     const employees = await User.find({ role: 'employee' }).select('-password');
 
     const payrollData = await Promise.all(employees.map(async (emp) => {
+      // 1. Physical attendance punches for this month
       const actualPresent = await Attendance.countDocuments({
         user: emp._id,
         status: 'present',
         date: { $regex: `^${monthString}` }
       });
 
-      const presentDays = actualPresent > 0 ? actualPresent : Math.min(22, workingDaysInMonth);
+      // 2. Approved paid leave days for this month
+      const approvedLeaves = await Leave.find({
+        user: emp._id,
+        status: 'approved'
+      });
+      const leaveDays = countApprovedLeaveDaysInMonth(approvedLeaves, targetYear, targetMonth);
+
+      let attendanceCount = actualPresent;
+      if (actualPresent === 0 && leaveDays === 0) {
+        attendanceCount = Math.min(22, workingDaysInMonth);
+      }
+
+      const presentDays = Math.min(workingDaysInMonth, attendanceCount + leaveDays);
 
       const baseSalary = emp.salaryDetails?.baseSalary || 35000;
       const bonus = emp.salaryDetails?.bonus || 0;
@@ -150,6 +186,8 @@ exports.getPayroll = async (req, res) => {
         name: emp.name,
         employeeId: emp.employeeId,
         presentDays,
+        attendanceCount,
+        leaveDays,
         workingDaysInMonth,
         salaryDetails: emp.salaryDetails,
         netSalary,

@@ -98,7 +98,12 @@ const Payroll = () => {
     doc.text(`Employee Name: ${emp.name}`, 20, 48);
     doc.text(`Employee ID: ${emp.employeeId}`, 20, 56);
     const workingDays = emp.workingDaysInMonth || 24;
-    doc.text(`Attendance: ${emp.presentDays} / ${workingDays} Working Days`, 120, 48);
+    doc.text(`Attendance Log: ${emp.presentDays} / ${workingDays} Working Days`, 120, 48);
+    if (emp.leaveDays > 0) {
+      doc.setFontSize(10);
+      doc.setTextColor(5, 150, 105);
+      doc.text(`(${emp.attendanceCount} Punches + ${emp.leaveDays} Approved Paid Leaves)`, 120, 54);
+    }
     
     const tableColumn = ["Earnings & Deductions", "Amount (INR)"];
     const baseSalary = emp.salaryDetails?.baseSalary || 0;
@@ -108,7 +113,7 @@ const Payroll = () => {
     
     const tableRows = [
       ["Base Monthly Pay", `Rs. ${baseSalary.toLocaleString()}`],
-      [`Pro-rata Pay (${emp.presentDays} days)`, `Rs. ${proRataPay.toLocaleString()}`],
+      [`Pro-rata Pay (${emp.presentDays} days - incl. ${emp.leaveDays || 0} paid leaves)`, `Rs. ${proRataPay.toLocaleString()}`],
       ["Allowances / Bonus", `Rs. ${bonus.toLocaleString()}`],
       ["Deductions", `- Rs. ${deductions.toLocaleString()}`],
       ["NET DISBURSEMENT", `Rs. ${(emp.netSalary !== undefined ? emp.netSalary : proRataPay).toLocaleString()}`]
@@ -213,7 +218,16 @@ const Payroll = () => {
                     </div>
                 </td>
                 <td style={{ padding: '1.25rem 2rem' }}>
-                    <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-main)' }}>{item.presentDays} / {item.workingDaysInMonth || 24} Days</div>
+                    <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--secondary)' }}>{item.presentDays} / {item.workingDaysInMonth || 24} Days</div>
+                    {item.leaveDays > 0 ? (
+                      <div style={{ fontSize: '11px', color: '#059669', fontWeight: '700', marginTop: '2px' }}>
+                        ({item.attendanceCount} Punches + {item.leaveDays} Paid Leaves)
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                        Physical Attendance
+                      </div>
+                    )}
                     <div style={{ width: '100px', height: '4px', background: '#f1f5f9', borderRadius: '2px', marginTop: '6px' }}>
                         <div style={{ width: `${Math.min(100, (item.presentDays / (item.workingDaysInMonth || 24)) * 100)}%`, height: '100%', background: '#10b981', borderRadius: '2px' }}></div>
                     </div>
