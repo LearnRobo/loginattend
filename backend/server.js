@@ -87,28 +87,23 @@ const connectDB = async () => {
       console.log('✅ Admin Password Reset: admin@edtech.com / admin123');
     }
 
-    // Seed Test Employees if not exists
-    const defaultLat = parseFloat(process.env.OFFICE_LAT) || 12.9716;
-    const defaultLng = parseFloat(process.env.OFFICE_LONG) || 77.5946;
+    // Seed Test Employees only if database is completely empty
+    const employeeCount = await User.countDocuments({ role: 'employee' });
+    if (employeeCount === 0) {
+      const defaultLat = parseFloat(process.env.OFFICE_LAT) || 12.9716;
+      const defaultLng = parseFloat(process.env.OFFICE_LONG) || 77.5946;
 
-    const testEmployees = [
-      { name: 'Rahul Sharma',   email: 'rahul@edtech.com',   employeeId: 'EMP001', officeCoords: { lat: defaultLat, lng: defaultLng }, salaryDetails: { baseSalary: 35000, bonus: 2000, deductions: 1500 } },
-      { name: 'Priya Patel',    email: 'priya@edtech.com',    employeeId: 'EMP002', officeCoords: { lat: defaultLat, lng: defaultLng }, salaryDetails: { baseSalary: 40000, bonus: 3000, deductions: 2000 } },
-      { name: 'Ashwini Rajput', email: 'ashwini@edtech.com', employeeId: 'EMP003', officeCoords: { lat: defaultLat, lng: defaultLng }, salaryDetails: { baseSalary: 45000, bonus: 5000, deductions: 2500 } },
-      { name: 'Jane Smith',     email: 'jane@edtech.com',    employeeId: 'EMP004', officeCoords: { lat: defaultLat, lng: defaultLng }, salaryDetails: { baseSalary: 42000, bonus: 4000, deductions: 1800 } },
-    ];
+      const testEmployees = [
+        { name: 'Rahul Sharma',   email: 'rahul@edtech.com',   employeeId: 'EMP001', officeCoords: { lat: defaultLat, lng: defaultLng }, salaryDetails: { baseSalary: 35000, bonus: 2000, deductions: 1500 } },
+        { name: 'Priya Patel',    email: 'priya@edtech.com',    employeeId: 'EMP002', officeCoords: { lat: defaultLat, lng: defaultLng }, salaryDetails: { baseSalary: 40000, bonus: 3000, deductions: 2000 } },
+        { name: 'Ashwini Rajput', email: 'ashwini@edtech.com', employeeId: 'EMP003', officeCoords: { lat: defaultLat, lng: defaultLng }, salaryDetails: { baseSalary: 45000, bonus: 5000, deductions: 2500 } },
+        { name: 'Jane Smith',     email: 'jane@edtech.com',    employeeId: 'EMP004', officeCoords: { lat: defaultLat, lng: defaultLng }, salaryDetails: { baseSalary: 42000, bonus: 4000, deductions: 1800 } },
+      ];
 
-    for (const emp of testEmployees) {
-      const existing = await User.findOne({ email: emp.email });
-      const hashedPwd = await bcrypt.hash('emp123', salt);
-      if (!existing) {
+      for (const emp of testEmployees) {
+        const hashedPwd = await bcrypt.hash('emp123', salt);
         await User.create({ ...emp, password: hashedPwd, role: 'employee' });
         console.log(`✅ Employee Created: ${emp.email} / emp123`);
-      } else {
-        // Force update for testing distance/coordinates
-        existing.officeCoords = emp.officeCoords;
-        existing.password = hashedPwd;
-        await existing.save();
       }
     }
   } catch (err) {

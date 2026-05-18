@@ -1,32 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { DollarSign, Download, Printer } from 'lucide-react';
+import { DollarSign, Download, Printer, Calendar as CalendarIcon, Check, X, Edit3 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { API_BASE } from '../api/config';
 
 const Payroll = () => {
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
   const [payroll, setPayroll] = useState([]);
+  const [monthSummary, setMonthSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchPayroll();
-  }, []);
+  // Calendar configuration modal state
+  const [showCalModal, setShowCalModal] = useState(false);
+  const [modalDays, setModalDays] = useState([]);
+  const [savingCal, setSavingCal] = useState(false);
 
-  const fetchPayroll = async () => {
+  useEffect(() => {
+    fetchPayroll(selectedMonth);
+  }, [selectedMonth]);
+
+  const fetchPayroll = async (monthStr = selectedMonth) => {
+    setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_BASE}/payroll`, {
+      const res = await axios.get(`${API_BASE}/payroll?month=${monthStr}`, {
         headers: { 'x-auth-token': token }
       });
-      setPayroll(res.data);
+      setPayroll(res.data.payroll || res.data);
+      if (res.data.calendar) {
+        setMonthSummary({
+          workingDays: res.data.workingDaysInMonth,
+          calendar: res.data.calendar
+        });
+        setModalDays(res.data.calendar.days || []);
+      }
       setLoading(false);
       setError(null);
     } catch (err) {
       console.error(err);
       setLoading(false);
       setError('Failed to calculate payroll data.');
+    }
+  };
+
+  const handleDayClick = (index) => {
+    const days = [...modalDays];
+    const current = days[index];
+    let nextType = 'working';
+    if (current.type === 'working') nextType = 'sunday';
+    else if (current.type === 'sunday') nextType = 'holiday';
+    
+    days[index] = { ...current, type: nextType };
+    setModalDays(days);
+  };
+
+  const handleSaveCalendar = async () => {
+    setSavingCal(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`${API_BASE}/payroll/calendar`, {
+        monthString: selectedMonth,
+        days: modalDays
+      }, {
+        headers: { 'x-auth-token': token }
+      });
+      setShowCalModal(false);
+      fetchPayroll(selectedMonth);
+    } catch (err) {
+      console.error('Save Calendar Error:', err);
+      alert('Failed to save calendar configuration.');
+    } finally {
+      setSavingCal(false);
     }
   };
 
@@ -39,7 +88,7 @@ const Payroll = () => {
     
     doc.setFontSize(11);
     doc.setTextColor(100, 116, 139);
-    doc.text(`Pay Period: ${emp.monthString || new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}`, 105, 28, { align: 'center' });
+    doc.text(`Pay Period: ${emp.monthString || selectedMonth}`, 105, 28, { align: 'center' });
     
     doc.setDrawColor(226, 232, 240);
     doc.line(20, 35, 190, 35);
@@ -84,7 +133,7 @@ const Payroll = () => {
 
   const handleDownloadPDF = (emp) => {
     const doc = generateSlipDoc(emp);
-    doc.save(`Salary_Slip_${emp.employeeId}_${emp.monthString || 'Current'}.pdf`);
+    doc.save(`Salary_Slip_${emp.employeeId}_${emp.monthString || selectedMonth}.pdf`);
   };
 
   const handlePrintSlip = (emp) => {
@@ -94,26 +143,42 @@ const Payroll = () => {
 
   return (
     <div className="fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h2 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--secondary)', letterSpacing: '-0.025em' }}>Payroll Management</h2>
-          <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>Automated salary processing and disbursement tracking.</p>
+          <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>Automated salary processing and monthly working calendar controls.</p>
         </div>
-        <button 
-            onClick={fetchPayroll}
-            className="btn-primary" 
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'white', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--border)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+            <CalendarIcon size={18} color="var(--primary)" />
+            <input 
+              type="month" 
+              value={selectedMonth} 
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              style={{ border: 'none', outline: 'none', fontWeight: '700', fontSize: '14px', color: 'var(--secondary)', background: 'transparent', cursor: 'pointer' }}
+            />
+          </div>
+
+          <button 
+            onClick={() => setShowCalModal(true)}
             style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.5rem',
-                padding: '0.875rem 1.5rem',
-                borderRadius: '12px',
-                boxShadow: '0 4px 12px rgba(2, 132, 199, 0.2)',
-                cursor: 'pointer'
+              display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.875rem 1.25rem', borderRadius: '12px', background: '#f8fafc', border: '1px solid var(--border)', color: 'var(--secondary)', fontWeight: '700', cursor: 'pointer', transition: '0.2s'
             }}
-        >
-          <DollarSign size={18} /> Run Payroll Engine
-        </button>
+          >
+            <Edit3 size={18} color="#0284c7" /> Configure Working Days ({monthSummary ? monthSummary.workingDays : 24})
+          </button>
+
+          <button 
+              onClick={() => fetchPayroll(selectedMonth)}
+              className="btn-primary" 
+              style={{ 
+                  display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.875rem 1.5rem', borderRadius: '12px', boxShadow: '0 4px 12px rgba(2, 132, 199, 0.2)', cursor: 'pointer'
+              }}
+          >
+            <DollarSign size={18} /> Recalculate Payroll
+          </button>
+        </div>
       </div>
 
       <div className="card" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
@@ -182,6 +247,54 @@ const Payroll = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Calendar Configuration Modal */}
+      {showCalModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.75)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backdropFilter: 'blur(4px)' }}>
+          <div style={{ background: 'white', borderRadius: '24px', padding: '2.5rem', width: '100%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>
+              <div>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--secondary)' }}>Month Working Calendar ({selectedMonth})</h3>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Click any day box to cycle between Working Day, Sunday, and Holiday.</p>
+              </div>
+              <button onClick={() => setShowCalModal(false)} style={{ padding: '0.5rem', borderRadius: '50%', border: 'none', background: '#f1f5f9', cursor: 'pointer' }}><X size={20} /></button>
+            </div>
+
+            <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', background: '#f8fafc', padding: '1rem 1.5rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span style={{ width: 14, height: 14, borderRadius: 4, background: '#10b981' }}></span> <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--secondary)' }}>Working Days ({modalDays.filter(d=>d.type==='working').length})</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span style={{ width: 14, height: 14, borderRadius: 4, background: '#8b5cf6' }}></span> <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--secondary)' }}>Sundays ({modalDays.filter(d=>d.type==='sunday').length})</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span style={{ width: 14, height: 14, borderRadius: 4, background: '#ef4444' }}></span> <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--secondary)' }}>Holidays ({modalDays.filter(d=>d.type==='holiday').length})</span></div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.75rem', marginBottom: '2.5rem' }}>
+              {modalDays.map((d, index) => (
+                <div 
+                  key={d.day} 
+                  onClick={() => handleDayClick(index)}
+                  style={{ 
+                    padding: '1rem 0.5rem', borderRadius: '16px', border: '2px solid', 
+                    borderColor: d.type === 'working' ? '#a7f3d0' : d.type === 'sunday' ? '#ddd6fe' : '#fecaca',
+                    background: d.type === 'working' ? '#ecfdf5' : d.type === 'sunday' ? '#f5f3ff' : '#fef2f2',
+                    textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s', userSelect: 'none'
+                  }}
+                >
+                  <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--secondary)' }}>{d.day}</div>
+                  <div style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', marginTop: '6px', color: d.type === 'working' ? '#059669' : d.type === 'sunday' ? '#7c3aed' : '#dc2626' }}>
+                    {d.type}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+              <button onClick={() => setShowCalModal(false)} style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'white', fontWeight: '700', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={handleSaveCalendar} disabled={savingCal} className="btn-primary" style={{ padding: '0.75rem 2rem', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Check size={18} /> {savingCal ? 'Saving...' : 'Save & Apply to Payroll'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
