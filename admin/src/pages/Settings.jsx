@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { MapPin, Save, ShieldCheck } from 'lucide-react';
+import { API_BASE } from '../api/config';
 
 const Settings = () => {
   const [formData, setFormData] = useState({
@@ -17,7 +18,7 @@ const Settings = () => {
   const fetchSettings = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/settings', {
+      const res = await axios.get(`${API_BASE}/settings`, {
         headers: { 'x-auth-token': token }
       });
       setFormData(res.data);
@@ -31,7 +32,7 @@ const Settings = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/settings', formData, {
+      await axios.post(`${API_BASE}/settings`, formData, {
         headers: { 'x-auth-token': token }
       });
       alert('Settings updated successfully');

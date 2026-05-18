@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Calendar, Filter, Download } from 'lucide-react';
 import { format } from 'date-fns';
+import { API_BASE, UPLOADS_BASE } from '../api/config';
 
 const AttendanceList = () => {
   const [logs, setLogs] = useState([]);
@@ -14,7 +15,7 @@ const AttendanceList = () => {
   const fetchLogs = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/attendance/all', {
+      const res = await axios.get(`${API_BASE}/attendance/all`, {
         headers: { 'x-auth-token': token }
       });
       setLogs(res.data);
@@ -120,7 +121,7 @@ const AttendanceList = () => {
                 <td style={{ padding: '1.25rem 2rem' }}>
                   {log.checkIn?.faceImage ? (
                     <button 
-                      onClick={() => window.open(`http://localhost:5000/uploads/attendance/${log.checkIn.faceImage}`, '_blank')}
+                      onClick={() => window.open(`${UPLOADS_BASE}/${log.checkIn.faceImage}`, '_blank')}
                       style={{ 
                         padding: '6px 12px', 
                         background: '#f1f5f9', 

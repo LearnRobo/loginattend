@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, UserCheck, UserX, Clock } from 'lucide-react';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { API_BASE } from '../api/config';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -21,7 +22,7 @@ const Dashboard = () => {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/attendance/stats', {
+      const response = await fetch(`${API_BASE}/attendance/stats`, {
         headers: { 'x-auth-token': token }
       });
       
@@ -31,7 +32,7 @@ const Dashboard = () => {
       setStats(data);
 
       // Get recent activity
-      const recentRes = await fetch('http://localhost:5000/api/attendance/all', {
+      const recentRes = await fetch(`${API_BASE}/attendance/all`, {
         headers: { 'x-auth-token': token }
       });
       const recentData = await recentRes.json();
