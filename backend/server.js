@@ -42,6 +42,7 @@ app.use('/api/employees', require('./routes/employee'));
 app.use('/api/attendance', require('./routes/attendance'));
 app.use('/api/leaves', require('./routes/leave'));
 app.use('/api/offices', require('./routes/office'));
+app.use('/api/payroll', require('./routes/payroll'));
 
 app.get('/', (req, res) => {
   res.send('Attendance App API is running...');
