@@ -118,6 +118,18 @@ const connectDB = async () => {
 
 connectDB();
 
+// Serve frontend build if available in production
+const frontendDist = path.join(__dirname, '../admin/dist');
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.get('*', (req, res, next) => {
+    if (req.url.startsWith('/api') || req.url.startsWith('/uploads')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+}
+
 // 404 Handler
 app.use((req, res) => {
   res.status(404).json({ msg: 'Route not found' });
