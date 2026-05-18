@@ -37,9 +37,11 @@ const EmployeeList = () => {
         await axios.delete(`${API_BASE}/employees/${id}`, {
           headers: { 'x-auth-token': token }
         });
+        alert('Employee deleted successfully.');
         fetchEmployees();
       } catch (err) {
-        alert('Error deleting employee');
+        console.error('Delete error:', err);
+        alert('Error deleting employee: ' + (err.response?.data?.msg || err.message));
       }
     }
   };
