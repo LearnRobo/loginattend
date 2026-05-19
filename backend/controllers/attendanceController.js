@@ -57,7 +57,7 @@ exports.checkIn = async (req, res) => {
     attendance.checkIn = {
       time: new Date(),
       location: { lat, lng },
-      faceImage: req.file ? req.file.filename : null,
+      faceImage: req.file ? req.file.filename : (req.body.faceImageBase64 || null),
       verified: true
     };
     attendance.office = officeId;
@@ -67,13 +67,14 @@ exports.checkIn = async (req, res) => {
     console.log(`[CHECK-IN] SUCCESS: Attendance saved for Office: ${targetOffice.name}`);
     res.json(attendance);
   } catch (err) {
+    console.error('Checkin Server Error:', err);
     res.status(500).json({ msg: 'Server Error' });
   }
 };
 
 exports.checkOut = async (req, res) => {
   try {
-    const { lat, lng, officeId } = req.body;
+    const { lat, lng, officeId, faceImageBase64 } = req.body;
     const userId = req.user.id;
     const user = await User.findById(userId).populate('assignedOffices');
     const today = DateTime.now().toFormat('yyyy-MM-dd');
@@ -103,7 +104,7 @@ exports.checkOut = async (req, res) => {
     attendance.checkOut = {
       time: new Date(),
       location: { lat, lng },
-      faceImage: req.file ? req.file.filename : null,
+      faceImage: req.file ? req.file.filename : (faceImageBase64 || null),
       verified: true
     };
 

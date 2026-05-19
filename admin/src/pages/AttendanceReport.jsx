@@ -16,6 +16,7 @@ const AttendanceReport = () => {
     employee: '',
     month: '',
   });
+  const [activePhoto, setActivePhoto] = useState(null);
 
   useEffect(() => {
     fetchAttendance();
@@ -40,9 +41,9 @@ const AttendanceReport = () => {
         officeName: log.office?.name || 'Main Office',
         date: log.date,
         checkInTime: log.checkIn?.time ? new Date(log.checkIn.time).toLocaleTimeString() : '--:--',
-        checkInPhoto: log.checkIn?.faceImage ? `${UPLOADS_BASE}/${log.checkIn.faceImage}` : null,
+        checkInPhoto: log.checkIn?.faceImage ? (log.checkIn.faceImage.startsWith('data:') ? log.checkIn.faceImage : `${UPLOADS_BASE}/${log.checkIn.faceImage}`) : null,
         checkOutTime: log.checkOut?.time ? new Date(log.checkOut.time).toLocaleTimeString() : '--:--',
-        checkOutPhoto: log.checkOut?.faceImage ? `${UPLOADS_BASE}/${log.checkOut.faceImage}` : null,
+        checkOutPhoto: log.checkOut?.faceImage ? (log.checkOut.faceImage.startsWith('data:') ? log.checkOut.faceImage : `${UPLOADS_BASE}/${log.checkOut.faceImage}`) : null,
         status: log.status,
       }));
 
@@ -212,7 +213,7 @@ const AttendanceReport = () => {
                         </div>
                         {record.checkInPhoto && (
                           <div className="flex items-center gap-2 mt-1">
-                            <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex-shrink-0">
+                            <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex-shrink-0 cursor-pointer" onClick={() => setActivePhoto({ url: record.checkInPhoto, name: record.empName, date: record.date, type: 'Punch-In', empId: record.empId, time: record.checkInTime })}>
                               <img 
                                 src={record.checkInPhoto} 
                                 alt="Check In" 
@@ -220,10 +221,11 @@ const AttendanceReport = () => {
                                 onError={(e) => { e.target.style.display = 'none'; }}
                               />
                             </div>
-                            <a href={record.checkInPhoto} target="_blank" rel="noreferrer" 
-                               className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg text-[10px] font-black text-gray-500 transition-all border border-gray-100">
+                            <button 
+                               onClick={() => setActivePhoto({ url: record.checkInPhoto, name: record.empName, date: record.date, type: 'Punch-In', empId: record.empId, time: record.checkInTime })}
+                               className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg text-[10px] font-black text-gray-500 transition-all border border-gray-100 cursor-pointer">
                               <Eye size={12} /> VIEW
-                            </a>
+                            </button>
                           </div>
                         )}
                       </div>
@@ -235,7 +237,7 @@ const AttendanceReport = () => {
                         </div>
                         {record.checkOutPhoto && (
                           <div className="flex items-center gap-2 mt-1">
-                            <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex-shrink-0">
+                            <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex-shrink-0 cursor-pointer" onClick={() => setActivePhoto({ url: record.checkOutPhoto, name: record.empName, date: record.date, type: 'Punch-Out', empId: record.empId, time: record.checkOutTime })}>
                               <img 
                                 src={record.checkOutPhoto} 
                                 alt="Check Out" 
@@ -243,10 +245,11 @@ const AttendanceReport = () => {
                                 onError={(e) => { e.target.style.display = 'none'; }}
                               />
                             </div>
-                            <a href={record.checkOutPhoto} target="_blank" rel="noreferrer" 
-                               className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg text-[10px] font-black text-gray-500 transition-all border border-gray-100">
+                            <button 
+                               onClick={() => setActivePhoto({ url: record.checkOutPhoto, name: record.empName, date: record.date, type: 'Punch-Out', empId: record.empId, time: record.checkOutTime })}
+                               className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg text-[10px] font-black text-gray-500 transition-all border border-gray-100 cursor-pointer">
                               <Eye size={12} /> VIEW
-                            </a>
+                            </button>
                           </div>
                         )}
                       </div>
@@ -290,6 +293,47 @@ const AttendanceReport = () => {
           <p className="text-indigo-200 text-sm">All punch actions are timestamped and verified against facial data and geofence coordinates.</p>
         </div>
       </div>
+
+      {activePhoto && (
+        <div 
+          onClick={() => setActivePhoto(null)}
+          className="fixed inset-0 bg-slate-900/75 backdrop-blur-md flex items-center justify-center z-50 p-4 transition-all duration-300"
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            className="bg-white rounded-[2rem] p-8 max-w-[440px] w-full border border-gray-100 shadow-2xl flex flex-col gap-6 relative animate-in fade-in zoom-in-95 duration-200"
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <span className={`inline-flex px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+                  activePhoto.type === 'Punch-In' ? 'bg-emerald-50 text-emerald-600' : 'bg-purple-50 text-purple-600'
+                }`}>{activePhoto.type} Photo</span>
+                <h3 className="text-xl font-extrabold text-gray-900 mt-2 mb-0.5">{activePhoto.name}</h3>
+                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">ID: {activePhoto.empId} • {activePhoto.date} at {activePhoto.time}</p>
+              </div>
+              <button 
+                onClick={() => setActivePhoto(null)}
+                className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center font-bold text-gray-400 hover:bg-gray-100 transition-all outline-none"
+              >✕</button>
+            </div>
+            
+            <div className="w-full h-[320px] rounded-2xl overflow-hidden border border-gray-100 bg-gray-50/50">
+              <img 
+                src={activePhoto.url} 
+                alt="Verification Selfie" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            
+            <button 
+              onClick={() => setActivePhoto(null)} 
+              className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-indigo-100"
+            >
+              Dismiss Verification
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
