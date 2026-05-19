@@ -11,7 +11,19 @@ const {
   resetAttendance
 } = require('../controllers/attendanceController');
 
-const upload = multer({ dest: '../uploads/temp/' });
+const path = require('path');
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../../uploads/temp/'));
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = file.originalname ? path.extname(file.originalname) : '.jpg';
+    cb(null, uniqueSuffix + (ext || '.jpg'));
+  }
+});
+
+const upload = multer({ storage });
 
 router.post('/check-in', auth, upload.single('faceImage'), checkIn);
 router.post('/check-out', auth, upload.single('faceImage'), checkOut);

@@ -28,7 +28,14 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
   next();
 });
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
+  setHeaders: (res, filePath) => {
+    const ext = path.extname(filePath);
+    if (!ext && filePath.includes('temp')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    }
+  }
+}));
 app.get('/test-client', (req, res) => {
   res.sendFile(path.join(__dirname, '../employee-login-preview.html'));
 });

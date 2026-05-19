@@ -81,8 +81,20 @@ const AttendanceList = () => {
               <tr key={log._id} style={{ borderBottom: '1px solid var(--border)', transition: '0.2s' }} className="table-row-hover">
                 <td style={{ padding: '1.25rem 2rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '12px', color: 'var(--primary)' }}>
-                            {log.user?.name?.charAt(0)}
+                        <div style={{ width: '36px', height: '36px', borderRadius: '10px', overflow: 'hidden', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {log.checkIn?.faceImage ? (
+                              <img 
+                                src={`${UPLOADS_BASE}/${log.checkIn.faceImage}`} 
+                                alt="Face" 
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => { e.target.style.display = 'none'; }}
+                              />
+                            ) : null}
+                            {(!log.checkIn?.faceImage) && (
+                              <span style={{ fontWeight: '800', fontSize: '12px', color: 'var(--primary)' }}>
+                                {log.user?.name?.charAt(0)}
+                              </span>
+                            )}
                         </div>
                         <div>
                             <div style={{ fontWeight: '700', color: 'var(--secondary)', fontSize: '15px' }}>{log.user?.name}</div>
@@ -119,25 +131,45 @@ const AttendanceList = () => {
                   </span>
                 </td>
                 <td style={{ padding: '1.25rem 2rem' }}>
-                  {log.checkIn?.faceImage ? (
-                    <button 
-                      onClick={() => window.open(`${UPLOADS_BASE}/${log.checkIn.faceImage}`, '_blank')}
-                      style={{ 
-                        padding: '6px 12px', 
-                        background: '#f1f5f9', 
-                        border: '1px solid #e2e8f0', 
-                        borderRadius: '8px',
-                        fontSize: '11px',
-                        fontWeight: '700',
-                        color: '#64748b',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      View Photo
-                    </button>
-                  ) : (
-                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>No Photo</span>
-                  )}
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {log.checkIn?.faceImage ? (
+                      <button 
+                        onClick={() => window.open(`${UPLOADS_BASE}/${log.checkIn.faceImage}`, '_blank')}
+                        style={{ 
+                          padding: '6px 12px', 
+                          background: '#ecfdf5', 
+                          border: '1px solid #a7f3d0', 
+                          borderRadius: '8px',
+                          fontSize: '11px',
+                          fontWeight: '800',
+                          color: '#047857',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        In Photo
+                      </button>
+                    ) : null}
+                    {log.checkOut?.faceImage ? (
+                      <button 
+                        onClick={() => window.open(`${UPLOADS_BASE}/${log.checkOut.faceImage}`, '_blank')}
+                        style={{ 
+                          padding: '6px 12px', 
+                          background: '#faf5ff', 
+                          border: '1px solid #e9d5ff', 
+                          borderRadius: '8px',
+                          fontSize: '11px',
+                          fontWeight: '800',
+                          color: '#7e22ce',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Out Photo
+                      </button>
+                    ) : null}
+                    {!log.checkIn?.faceImage && !log.checkOut?.faceImage && (
+                      <span style={{ fontSize: '11px', color: '#94a3b8' }}>No Photo</span>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

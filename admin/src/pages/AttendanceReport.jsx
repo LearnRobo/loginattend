@@ -211,10 +211,20 @@ const AttendanceReport = () => {
                           <Clock size={14} /> {record.checkInTime}
                         </div>
                         {record.checkInPhoto && (
-                          <a href={record.checkInPhoto} target="_blank" rel="noreferrer" 
-                             className="w-fit flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg text-[10px] font-black text-gray-500 transition-all border border-gray-100">
-                            <Eye size={12} /> VIEW IN PHOTO
-                          </a>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex-shrink-0">
+                              <img 
+                                src={record.checkInPhoto} 
+                                alt="Check In" 
+                                className="w-full h-full object-cover"
+                                onError={(e) => { e.target.style.display = 'none'; }}
+                              />
+                            </div>
+                            <a href={record.checkInPhoto} target="_blank" rel="noreferrer" 
+                               className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg text-[10px] font-black text-gray-500 transition-all border border-gray-100">
+                              <Eye size={12} /> VIEW
+                            </a>
+                          </div>
                         )}
                       </div>
                     </td>
@@ -224,10 +234,20 @@ const AttendanceReport = () => {
                           <Clock size={14} /> {record.checkOutTime}
                         </div>
                         {record.checkOutPhoto && (
-                          <a href={record.checkOutPhoto} target="_blank" rel="noreferrer" 
-                             className="w-fit flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg text-[10px] font-black text-gray-500 transition-all border border-gray-100">
-                            <Eye size={12} /> VIEW OUT PHOTO
-                          </a>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="w-8 h-8 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex-shrink-0">
+                              <img 
+                                src={record.checkOutPhoto} 
+                                alt="Check Out" 
+                                className="w-full h-full object-cover"
+                                onError={(e) => { e.target.style.display = 'none'; }}
+                              />
+                            </div>
+                            <a href={record.checkOutPhoto} target="_blank" rel="noreferrer" 
+                               className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg text-[10px] font-black text-gray-500 transition-all border border-gray-100">
+                              <Eye size={12} /> VIEW
+                            </a>
+                          </div>
                         )}
                       </div>
                     </td>
