@@ -166,9 +166,6 @@ exports.getPayroll = async (req, res) => {
       const absentLeaveDays = countApprovedLeaveDaysInMonth(absentQuotaLeaves, targetYear, targetMonth);
 
       let attendanceCount = actualPresent;
-      if (actualPresent === 0 && leaveDays === 0 && absentLeaveDays === 0) {
-        attendanceCount = Math.min(22, workingDaysInMonth);
-      }
 
       const presentDays = Math.max(0, Math.min(workingDaysInMonth, attendanceCount + leaveDays) - absentLeaveDays);
 
@@ -267,9 +264,6 @@ exports.getMyPayroll = async (req, res) => {
     const absentLeaveDays = countApprovedLeaveDaysInMonth(absentQuotaLeaves, targetYear, targetMonth);
 
     let attendanceCount = actualPresent;
-    if (actualPresent === 0 && leaveDays === 0 && absentLeaveDays === 0) {
-      attendanceCount = Math.min(22, workingDaysInMonth);
-    }
 
     const presentDays = Math.max(0, Math.min(workingDaysInMonth, attendanceCount + leaveDays) - absentLeaveDays);
 

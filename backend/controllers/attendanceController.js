@@ -1,5 +1,6 @@
 const Attendance = require('../models/Attendance');
 const User = require('../models/User');
+const Leave = require('../models/Leave');
 const { calculateDistance } = require('../utils/gpsHelper');
 const { DateTime } = require('luxon');
 const axios = require('axios');
@@ -160,8 +161,9 @@ exports.getStats = async (req, res) => {
 exports.resetAttendance = async (req, res) => {
   try {
     await Attendance.deleteMany({});
-    console.log(`[RESET] All attendance records cleared by Admin: ${req.user.id}`);
-    res.json({ msg: 'All attendance records have been reset successfully.' });
+    await Leave.deleteMany({});
+    console.log(`[RESET] All attendance and leave records cleared by Admin: ${req.user.id}`);
+    res.json({ msg: 'All attendance and leave records have been reset successfully.' });
   } catch (err) {
     console.error('Reset Error:', err);
     res.status(500).json({ msg: 'Server Error during reset' });
